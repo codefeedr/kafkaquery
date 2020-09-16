@@ -1,0 +1,61 @@
+*.class
+*.log
+!access.log
+
+mainRunner/
+project/project/
+target/
+
+#remove documentation build
+site/
+
+# caches related to documentation
+_site/
+.sass-cache/
+.jekyll-metadata
+_pdf
+.DS_Store
+.idea
+
+*/.idea/*
+.idea/*
+
+# CMake
+cmake-build-debug/
+cmake-build-release/
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+.idea/replstate.xml
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Editor-based Rest Client
+.idea/httpRequests
+codefeedr-plugins/codefeedr-travis/src/main/resources/github_api_key
+codefeedr-plugins/codefeedr-travis/src/main/resources/travis_api_key
+
+_site
+.sass-cache
+.jekyll-metadata
+*.gem
+.bundle
+vendor/bundle

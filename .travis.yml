@@ -1,0 +1,26 @@
+language: scala
+scala:
+  - 2.12.8
+sudo: required
+dist: xenial
+jdk: openjdk11
+
+before_cache:
+  # Cleanup the cached directories to avoid unnecessary cache updates
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+
+script:
+  - sbt 'set parallelExecution in ThisBuild := false' clean coverage test coverageReport && sbt coverageAggregate
+
+after_success:
+  - sbt scalafmtCheck
+  - sbt coveralls
+
+notifications:
+  email: false
