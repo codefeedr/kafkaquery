@@ -1,16 +1,16 @@
 # CodeFeedr KafkaQuery
 
-CodeFeedr KafkaQuery is a tool that allow to operate on JSON data in a Kafka instance using FlinkSQL.
+CodeFeedr KafkaQuery allows to operate on JSON data in a Kafka instance using FlinkSQL.
 
 ## Getting Started
 
-Run ```sbt pack``` to create a package folder which includes program launch scripts ìn the following directory: ```kafkatime/target/pack/bin/kakfaquery```
+Run ```sbt pack``` to create a package folder which includes program launch scripts in the following directory: ```kafkatime/target/pack/bin/kakfaquery```
 
 Add CodeFeedr to you path:
 ```
 export PATH=$PATH:<path to bin folder>
 
-e.g. export PATH=$PATH:/mnt/c/Users/MyName/Documents/kafkaquery/kafkatime/target/pack/bin
+e.g. export PATH=$PATH:/Users/MyUsername/Documents/kafkaquery/kafkatime/target/pack/bin
 ```
 
 Specify Kafka and Zookeeper addresses either in your environment variables or as [arguments](#address)  when executing the launch script.<br/>
@@ -25,8 +25,8 @@ Specify Kafka and Zookeeper addresses either in your environment variables or as
 
 Execute the codefeedr script which can be found here ```kafkaquery/kafkatime/target/pack/bin```
 
-//TODO record a nice video <br/>
-![Some Text](https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif)
+
+[![asciinema page](docs/UsageExamples/showTopics.gif)](https://asciinema.org/a/360404)
 
 ## Commands
 
