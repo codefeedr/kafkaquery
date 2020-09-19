@@ -28,6 +28,7 @@ Execute the codefeedr script which can be found here ```kafkaquery/kafkatime/tar
 In the following examples Kafka and Zookeeper instances are running on the default addresses. <br>
 To pause examples and mark & copy commands within them click on the examples to get redirected to the respective [Asciinema](https://asciinema.org/) page.
 
+
 ####Example 1: Show all available topics & display a schema
 
 
