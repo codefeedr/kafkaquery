@@ -1,16 +1,16 @@
 # CodeFeedr KafkaQuery
 
-CodeFeedr KafkaQuery is a tool that allow to operate on JSON data in a Kafka instance using FlinkSQL.
+CodeFeedr KafkaQuery allows to operate on JSON data in a Kafka instance using [Flink SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html).
 
 ## Getting Started
 
-Run ```sbt pack``` to create a package folder which includes program launch scripts ìn the following directory: ```kafkatime/target/pack/bin/kakfaquery```
+Run ```sbt pack``` to create a package folder which includes program launch scripts in the following directory: ```kafkatime/target/pack/bin/kakfaquery```
 
 Add CodeFeedr to you path:
 ```
 export PATH=$PATH:<path to bin folder>
 
-e.g. export PATH=$PATH:/mnt/c/Users/MyName/Documents/kafkaquery/kafkatime/target/pack/bin
+e.g. export PATH=$PATH:/Users/MyUsername/Documents/kafkaquery/kafkatime/target/pack/bin
 ```
 
 Specify Kafka and Zookeeper addresses either in your environment variables or as [arguments](#address)  when executing the launch script.<br/>
@@ -25,11 +25,21 @@ Specify Kafka and Zookeeper addresses either in your environment variables or as
 
 Execute the codefeedr script which can be found here ```kafkaquery/kafkatime/target/pack/bin```
 
-//TODO record a nice video <br/>
-![Some Text](https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif)
+In the following examples Kafka and Zookeeper instances are running on the default addresses. <br>
+To pause examples and mark & copy commands within them click on the examples to get redirected to the respective [Asciinema](https://asciinema.org/) page.
+
+
+#### Example 1: Show all available topics & display a schema
+[![asciinema page](docs/UsageExamples/showTopics.gif)](https://asciinema.org/a/360404)
+
+#### Example 2: Display all data in the topic pypi_releases_min 
+[![asciinema page](docs/UsageExamples/selectAll.gif)](https://asciinema.org/a/360660)
+
+#### Example 3: Aggregate author names for every hour
+[![asciinema page](docs/UsageExamples/aggregateAuthors.gif)](https://asciinema.org/a/360672)
+
 
 ## Commands
-
 
 | Command                                                            | Description                                                                                                                                                                             | Example                                                                                                                                                                                          |
 |--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
