@@ -1,6 +1,6 @@
 # CodeFeedr KafkaQuery
 
-CodeFeedr KafkaQuery allows to operate on JSON data in a Kafka instance using FlinkSQL.
+CodeFeedr KafkaQuery allows to operate on JSON data in a Kafka instance using [Flink SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html).
 
 ## Getting Started
 
@@ -25,8 +25,21 @@ Specify Kafka and Zookeeper addresses either in your environment variables or as
 
 Execute the codefeedr script which can be found here ```kafkaquery/kafkatime/target/pack/bin```
 
+In the following examples Kafka and Zookeeper instances are running on the default addresses. <br>
+To pause examples and mark & copy commands within them click on the examples to get redirected to the respective [Asciinema](https://asciinema.org/) page.
+
+####Example 1: Show all available topics & display a schema
+
 
 [![asciinema page](docs/UsageExamples/showTopics.gif)](https://asciinema.org/a/360404)
+
+
+####Example 2: Display all data in the topic pypi_releases_min 
+[![asciinema page](docs/UsageExamples/selectAll.gif)](https://asciinema.org/a/IXD3TT88FLg1BX2nqcOVDLaSO)
+
+
+
+
 
 ## Commands
 
