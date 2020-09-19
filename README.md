@@ -29,21 +29,17 @@ In the following examples Kafka and Zookeeper instances are running on the defau
 To pause examples and mark & copy commands within them click on the examples to get redirected to the respective [Asciinema](https://asciinema.org/) page.
 
 
-####Example 1: Show all available topics & display a schema
-
-
+#### Example 1: Show all available topics & display a schema
 [![asciinema page](docs/UsageExamples/showTopics.gif)](https://asciinema.org/a/360404)
 
-
-####Example 2: Display all data in the topic pypi_releases_min 
+#### Example 2: Display all data in the topic pypi_releases_min 
 [![asciinema page](docs/UsageExamples/selectAll.gif)](https://asciinema.org/a/IXD3TT88FLg1BX2nqcOVDLaSO)
 
-
-
+#### Example 3: Aggregate author names for every hour
+[![asciinema page](docs/UsageExamples/aggregateAuthors.gif)](https://asciinema.org/a/360672)
 
 
 ## Commands
-
 
 | Command                                                            | Description                                                                                                                                                                             | Example                                                                                                                                                                                          |
 |--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
