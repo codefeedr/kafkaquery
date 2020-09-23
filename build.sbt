@@ -24,7 +24,7 @@ scalacOptions ++= Seq(
 
 lazy val flinkVersion       = "1.11.1"
 lazy val log4jVersion       = "2.13.0"
-lazy val scalatestVersion   = "3.1.2"
+lazy val scalatestVersion   = "3.1.4"
 
 libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
