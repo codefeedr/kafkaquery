@@ -23,8 +23,8 @@ scalacOptions ++= Seq(
 )
 
 lazy val flinkVersion       = "1.11.2"
-lazy val log4jVersion       = "2.13.0"
-lazy val scalatestVersion   = "3.2.2"
+lazy val log4jVersion       = "2.13.3"
+lazy val scalatestVersion   = "3.1.4"
 
 libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
@@ -36,7 +36,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion,
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
 
-  "org.apache.kafka"           % "kafka-clients"                  % "2.4.0",
+  "org.apache.kafka"           % "kafka-clients"                  % "2.4.1",
   "org.apache.zookeeper"       % "zookeeper"                      % "3.4.9",
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
@@ -46,7 +46,7 @@ libraryDependencies ++= Seq(
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.0"           % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.0",
-  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "3.1.1",
+  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion      % Provided,
