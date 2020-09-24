@@ -28,7 +28,7 @@ lazy val scalatestVersion   = "3.2.2"
 
 libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
-  "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion     % Runtime,
+  "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime,
   "org.apache.logging.log4j"  %% "log4j-api-scala"                % "12.0",
 
   "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided,
@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
   "org.mockito"               %% "mockito-scala"                  % "1.15.1"          % Test,
 
-  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.0"           % Test,
+  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.1.1"         % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.0",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
