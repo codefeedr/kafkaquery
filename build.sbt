@@ -22,7 +22,7 @@ scalacOptions ++= Seq(
   "-language:higherKinds"
 )
 
-lazy val flinkVersion       = "1.11.1"
+lazy val flinkVersion       = "1.11.2"
 lazy val log4jVersion       = "2.13.0"
 lazy val scalatestVersion   = "3.1.2"
 
