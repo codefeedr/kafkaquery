@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
   "org.mockito"               %% "mockito-scala"                  % "1.15.1"          % Test,
 
-  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.1.1"         % Test,
+  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.6.0"         % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.0",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
