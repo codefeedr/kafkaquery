@@ -49,7 +49,7 @@ libraryDependencies ++= Seq(
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
-  "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion      % Provided,
+  "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
   "org.apache.flink"           % "flink-json"                     % flinkVersion,
 
   "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test classifier "tests",
