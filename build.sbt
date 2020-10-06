@@ -15,13 +15,6 @@ scalacOptions ++= Seq(
 enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
-scalacOptions ++= Seq(
-  "-deprecation",
-  "-encoding", "UTF-8",
-  "-feature",
-  "-language:higherKinds"
-)
-
 lazy val flinkVersion       = "1.11.2"
 lazy val log4jVersion       = "2.13.3"
 lazy val scalatestVersion   = "3.2.2"
@@ -49,7 +42,7 @@ libraryDependencies ++= Seq(
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
-  "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion      % Provided,
+  "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
   "org.apache.flink"           % "flink-json"                     % flinkVersion,
 
   "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test classifier "tests",
