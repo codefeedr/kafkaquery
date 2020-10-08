@@ -41,6 +41,10 @@ class KafkaRecordRetriever(topicName: String, kafkaAddress: String) {
   private val partBegOffsetMap =
     kafkaConsumer.beginningOffsets(partitions).asScala
 
+  /**
+    * Retrieves the next record from the inverse order.
+    * @return the next record that has not been retrieved yet
+    */
   def getNextRecord: String = {
 
     val maxOffsetKey =
@@ -56,7 +60,7 @@ class KafkaRecordRetriever(topicName: String, kafkaAddress: String) {
     kafkaConsumer.seek(maxOffsetKey, partEndOffsetMap(maxOffsetKey))
 
     val records: ConsumerRecords[String, String] =
-      kafkaConsumer.poll(Duration.ofMillis(100))
+      kafkaConsumer.poll(Duration.ofMillis(2000))
 
     records.iterator().next().value()
   }

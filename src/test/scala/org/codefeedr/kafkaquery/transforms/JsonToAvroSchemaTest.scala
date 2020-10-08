@@ -215,7 +215,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
     */
   forAll(testData) { (avroSchema: String, jsonSample: String) =>
     assertResult(new Schema.Parser().parse(avroSchema)) {
-      JsonToAvroSchema.inferSchema(jsonSample, topicName)
+      JsonToAvroSchema.inferSchema(jsonSample, topicName, null)
     }
   }
 
@@ -244,7 +244,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
     */
   forAll(exceptionalTestData) {jsonSample: String =>
     assertThrows[IllegalArgumentException] {
-      JsonToAvroSchema.inferSchema(jsonSample, topicName)
+      JsonToAvroSchema.inferSchema(jsonSample, topicName, null)
     }
   }
 }
