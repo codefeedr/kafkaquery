@@ -1,17 +1,10 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.time.Duration
-import java.util.Properties
-
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.JsonNodeType
-import org.apache.avro.{Schema, SchemaBuilder}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import org.apache.avro.SchemaBuilder.TypeBuilder
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.TopicPartition
+import org.apache.avro.{Schema, SchemaBuilder}
 import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
-
-import scala.collection.JavaConverters._
 
 object JsonToAvroSchema {
 
