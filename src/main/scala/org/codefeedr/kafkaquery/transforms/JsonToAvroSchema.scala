@@ -100,7 +100,7 @@ object JsonToAvroSchema {
       case JsonNodeType.NUMBER =>
         if (node.isIntegralNumber) schema.longType() else schema.doubleType()
 
-      case JsonNodeType.NULL | JsonNodeType.MISSING => schema.nullType()
+      case JsonNodeType.NULL | JsonNodeType.MISSING => schema.stringType()
     }
 
   private def findArrayType[T](

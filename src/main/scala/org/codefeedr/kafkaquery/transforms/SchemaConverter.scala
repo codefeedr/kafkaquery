@@ -21,7 +21,6 @@ object SchemaConverter {
     val escapedNamed = '`' + name + "`"
 
     schema.getType match {
-      case Type.NULL    => (escapedNamed, new java.lang.StringBuilder("NULL"))
       case Type.STRING  => (escapedNamed, new java.lang.StringBuilder("STRING"))
       case Type.FLOAT   => (escapedNamed, new java.lang.StringBuilder("FLOAT"))
       case Type.DOUBLE  => (escapedNamed, new java.lang.StringBuilder("DOUBLE"))
