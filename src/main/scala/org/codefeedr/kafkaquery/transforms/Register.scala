@@ -108,8 +108,7 @@ trait Register {
     var rowtimeFound = false
 
     for (field <- avroSchema.getFields.asScala) {
-      var fieldInfo = getNestedSchema(field.name(), field.schema())
-      fieldInfo = ("`" + fieldInfo._1 + "`", fieldInfo._2)
+      val fieldInfo = getNestedSchema(field.name(), field.schema())
 
       if (
         rowtimeEnabled && !rowtimeFound && "true".equals(
