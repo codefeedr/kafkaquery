@@ -10,21 +10,26 @@ object JsonToAvroSchema {
 
   /**
     * Infers an Avro schema from a given JSON object.
-    * @param json json data to infer schema from
-    * @param name name of the data source
-    * @param retriever a record retriever
+    * @param topicName name of the Kafka data source
+    * @param recordRetriever retriever of Kafka records in inverse order of addition
     * @return inferred Avro Schema
     */
   def inferSchema(
-      json: String,
-      name: String,
-      retriever: KafkaRecordRetriever
+      topicName: String,
+      recordRetriever: KafkaRecordRetriever
   ): Schema = {
+
     inferSchema(
-      new ObjectMapper().readTree(json),
+      new ObjectMapper().readTree(
+        recordRetriever.getNextRecord.getOrElse(
+          throw new IllegalArgumentException(
+            "Can not infer schema of empty topic."
+          )
+        )
+      ),
       SchemaBuilder.builder(),
-      name,
-      retriever
+      topicName,
+      recordRetriever
     )
   }
 
@@ -109,7 +114,12 @@ object JsonToAvroSchema {
       schema: TypeBuilder[T]
   ): T = {
     val recordString = retriever.getNextRecord
-    val nextRecordNode = new ObjectMapper().readTree(recordString)
+
+    if (recordString.isEmpty)
+      return schema.stringType()
+
+    val nextRecordNode = new ObjectMapper().readTree(recordString.get)
+
     inferSchema(
       nextRecordNode.findPath(arrayName),
       schema,

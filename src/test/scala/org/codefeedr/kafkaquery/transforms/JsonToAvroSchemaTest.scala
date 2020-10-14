@@ -1,10 +1,12 @@
 package org.codefeedr.kafkaquery.transforms
 
 import org.apache.avro.Schema
+import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
+import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
 
-class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
+class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks with MockitoSugar {
 
   val topicName = "myTopic"
 
@@ -72,7 +74,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
           |                    },
           |                    {
           |                        "name":"other",
-          |                        "type":"null"
+          |                        "type":"string"
           |                    }
           |                ]
           |                }
@@ -215,7 +217,10 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
     */
   forAll(testData) { (avroSchema: String, jsonSample: String) =>
     assertResult(new Schema.Parser().parse(avroSchema)) {
-      JsonToAvroSchema.inferSchema(jsonSample, topicName, null)
+      val recordRetrieverMock = mock[KafkaRecordRetriever]
+      doReturn(Option(jsonSample)).when(recordRetrieverMock).getNextRecord
+
+      JsonToAvroSchema.inferSchema(topicName, recordRetrieverMock)
     }
   }
 
@@ -246,7 +251,10 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks {
     */
   forAll(exceptionalTestData) {jsonSample: String =>
     assertThrows[IllegalArgumentException] {
-      JsonToAvroSchema.inferSchema(jsonSample, topicName, null)
+      val recordRetrieverMock = mock[KafkaRecordRetriever]
+      doReturn(Option(jsonSample)).when(recordRetrieverMock).getNextRecord
+
+      JsonToAvroSchema.inferSchema(topicName, recordRetrieverMock)
     }
   }
 }

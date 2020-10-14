@@ -228,11 +228,10 @@ class Parser extends OptionParser[Config]("codefeedr") {
     * @param kafkaAddress address of the kafka instance where the topic is present
     */
   def inferSchema(topicName: String, kafkaAddress: String): Unit = {
-    val recordRetriever = new KafkaRecordRetriever(topicName, kafkaAddress)
-    val record: String = recordRetriever.getNextRecord
-
-    val schema =
-      JsonToAvroSchema.inferSchema(record, topicName, recordRetriever)
+    val schema = JsonToAvroSchema.inferSchema(
+      topicName,
+      new KafkaRecordRetriever(topicName, kafkaAddress)
+    )
 
     updateSchema(topicName, schema.toString)
   }

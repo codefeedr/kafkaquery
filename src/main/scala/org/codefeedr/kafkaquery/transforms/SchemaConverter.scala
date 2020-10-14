@@ -21,13 +21,14 @@ object SchemaConverter {
     val escapedNamed = '`' + name + "`"
 
     schema.getType match {
-      case Type.STRING  => (escapedNamed, new java.lang.StringBuilder("STRING"))
-      case Type.FLOAT   => (escapedNamed, new java.lang.StringBuilder("FLOAT"))
-      case Type.DOUBLE  => (escapedNamed, new java.lang.StringBuilder("DOUBLE"))
-      case Type.INT     => (escapedNamed, new java.lang.StringBuilder("INTEGER"))
-      case Type.BOOLEAN => (escapedNamed, new java.lang.StringBuilder("BOOLEAN"))
-      case Type.LONG    => (escapedNamed, new java.lang.StringBuilder("BIGINT"))
-      case Type.BYTES   => (escapedNamed, new java.lang.StringBuilder("BYTES"))
+      case Type.STRING => (escapedNamed, new java.lang.StringBuilder("STRING"))
+      case Type.FLOAT  => (escapedNamed, new java.lang.StringBuilder("FLOAT"))
+      case Type.DOUBLE => (escapedNamed, new java.lang.StringBuilder("DOUBLE"))
+      case Type.INT    => (escapedNamed, new java.lang.StringBuilder("INTEGER"))
+      case Type.BOOLEAN =>
+        (escapedNamed, new java.lang.StringBuilder("BOOLEAN"))
+      case Type.LONG  => (escapedNamed, new java.lang.StringBuilder("BIGINT"))
+      case Type.BYTES => (escapedNamed, new java.lang.StringBuilder("BYTES"))
 
       case Type.UNION =>
         val foundType = schema.getTypes.asScala
