@@ -20,6 +20,7 @@ object SchemaConverter {
 
     val escapedNamed = '`' + name + "`"
 
+    // Reference: https://avro.apache.org/docs/current/spec.html
     schema.getType match {
       case Type.STRING => (escapedNamed, new java.lang.StringBuilder("STRING"))
       case Type.FLOAT  => (escapedNamed, new java.lang.StringBuilder("FLOAT"))
@@ -30,14 +31,15 @@ object SchemaConverter {
       case Type.LONG  => (escapedNamed, new java.lang.StringBuilder("BIGINT"))
       case Type.BYTES => (escapedNamed, new java.lang.StringBuilder("BYTES"))
 
+      /* Only unions which can be translated to Flink are those where one of the components is null (i.e. optionals).
+         In that case, the union will simply be represented in Flink as the data type meant to be optional. */
       case Type.UNION =>
         val foundType = schema.getTypes.asScala
-          .map(getNestedSchema(name, _)._2)
-          .find(x => x.toString != "NULL")
+          .find(_.getType != Type.NULL)
+
         (
           escapedNamed,
-          if (foundType.isDefined) foundType.get
-          else new java.lang.StringBuilder("NULL")
+          getNestedSchema(name, foundType.get)._2
         )
 
       // The key for an Avro map must be a string. Avro maps supports only one attribute: values.
