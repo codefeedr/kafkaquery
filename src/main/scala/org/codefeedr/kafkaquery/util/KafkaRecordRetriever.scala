@@ -20,7 +20,7 @@ class KafkaRecordRetriever(
     maxRecords: Int = 42
 ) {
 
-  var count = 0
+  var count = 1
 
   private val props = new Properties()
   props.put("bootstrap.servers", kafkaAddress)
@@ -77,5 +77,4 @@ class KafkaRecordRetriever(
 
     Option(records.iterator().next().value())
   }
-
 }
