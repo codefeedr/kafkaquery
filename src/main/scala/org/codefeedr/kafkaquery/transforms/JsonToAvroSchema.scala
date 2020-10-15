@@ -7,7 +7,9 @@ import org.apache.avro.SchemaBuilder.TypeBuilder
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
+import scala.io.StdIn
 
 object JsonToAvroSchema {
 
@@ -82,45 +84,57 @@ object JsonToAvroSchema {
 
       case JsonNodeType.OBJECT | JsonNodeType.POJO =>
         val nodeName = validName(name)
+        val fieldIt = node.fields()
 
-        val newSchema = schema.record(nodeName).namespace(namespace).fields()
-        if(node.fields.hasNext) {
-
-          var fieldList : ListBuffer[(String, Schema)] = new ListBuffer[(String, Schema)]
-          val allFieldsSameType = true
-          val firstField = node.fields.next()
-          val fieldName = validName(firstField.getKey)
-          fieldList :+ (firstField, fieldName)
-
-          val firstSchema = inferSchema(
+        if(fieldIt.hasNext) {
+          val fieldList: ListBuffer[(String, Schema)] = new ListBuffer[(String, Schema)]
+          var allFieldsSameType = true
+          val firstField = fieldIt.next()
+          val firstFieldName = validName(firstField.getKey)
+          fieldList.append(
+            (firstFieldName,
+            inferSchema(
             firstField.getValue,
             SchemaBuilder.builder(),
-            fieldName,
+            firstFieldName,
             retriever,
-            namespace + '.' + nodeName
+            namespace + '.' + nodeName))
           )
 
-          node.fields.forEachRemaining(x => {
+          fieldIt.forEachRemaining(x => {
             val fieldName = validName(x.getKey)
-            val field = inferSchema(
+            val fieldSchema = inferSchema(
               x.getValue,
               SchemaBuilder.builder(),
               fieldName,
               retriever,
               namespace + '.' + nodeName
             )
-            fieldList :+ (firstField, fieldName)
-            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(firstField, field)
+            fieldList.append((fieldName, fieldSchema))
+            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(fieldList.head._2, fieldSchema)
           })
 
-          newSchema.name(fieldName)
-            .`type`(
-              //go through all
-            )
-            .noDefault()
-        }
+          if (allFieldsSameType) {
+            println("Should this be a map (m) or an object (o)?")
+            println(node.toPrettyString)
+            val res = readAllowedChar(List('m', 'o'))
 
-        newSchema.endRecord()
+            // TODO write more neatly
+            if (res == 'm') {
+              return schema.map().values(fieldList.head._2)
+            }
+          }
+
+          val newSchema = schema.record(nodeName).namespace(namespace).fields()
+          fieldList.foreach(x => newSchema.name(x._1).`type`(x._2).noDefault())
+          newSchema.endRecord()
+
+        }
+        else {
+          // TODO either ask user or do as for arrays
+          println("erm")
+          schema.record("temp").fields().endRecord()
+        }
 
       case JsonNodeType.BOOLEAN => schema.booleanType()
 
@@ -135,7 +149,7 @@ object JsonToAvroSchema {
   private def areSchemaTypesEqual(one: Schema, two: Schema) : Boolean = {
     val schemaTypes = (one.getType, two.getType)
     schemaTypes match {
-      case (Type.RECORD, Type.RECORD) => {
+      case (Type.RECORD, Type.RECORD) =>
         if(one.getFields.size() != two.getFields.size())
           return false
 
@@ -146,7 +160,6 @@ object JsonToAvroSchema {
             return false
         }
         true
-      }
       case (Type.ARRAY, Type.ARRAY) => areSchemaTypesEqual(one.getElementType, two.getElementType)
       case (Type.MAP, Type.MAP) => areSchemaTypesEqual(one.getValueType, two.getValueType)
       case (x, y) if x == y => true
@@ -188,5 +201,14 @@ object JsonToAvroSchema {
     )
       return tempName
     '_' + tempName
+  }
+
+  @tailrec
+  private def readAllowedChar(allowedChars : List[Char]): Char = {
+    println("Please insert one of the following characters: " + allowedChars.toSet)
+    val input = StdIn.readChar()
+    if (allowedChars.contains(input))
+      return input
+    readAllowedChar(allowedChars)
   }
 }
