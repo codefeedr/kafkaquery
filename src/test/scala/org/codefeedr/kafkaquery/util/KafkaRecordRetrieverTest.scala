@@ -20,7 +20,7 @@ with EmbeddedKafka {
 
   def init(givenConfig : EmbeddedKafkaConfig) : Unit = {
     implicit val config = givenConfig
-    for (i <- 0 to someTopicData.length-1) {
+    for (i <- someTopicData.indices) {
       publishStringMessageToKafka(topicName, someTopicData(i))
     }
   }

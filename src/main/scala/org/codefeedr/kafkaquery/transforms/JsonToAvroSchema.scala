@@ -2,9 +2,12 @@ package org.codefeedr.kafkaquery.transforms
 
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import org.apache.avro.Schema.Type
 import org.apache.avro.SchemaBuilder.TypeBuilder
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
+
+import scala.collection.mutable.ListBuffer
 
 object JsonToAvroSchema {
 
@@ -81,21 +84,42 @@ object JsonToAvroSchema {
         val nodeName = validName(name)
 
         val newSchema = schema.record(nodeName).namespace(namespace).fields()
-        node.fields.forEachRemaining(x => {
-          val fieldName = validName(x.getKey)
-          newSchema
-            .name(fieldName)
+        if(node.fields.hasNext) {
+
+          var fieldList : ListBuffer[(String, Schema)] = new ListBuffer[(String, Schema)]
+          val allFieldsSameType = true
+          val firstField = node.fields.next()
+          val fieldName = validName(firstField.getKey)
+          fieldList :+ (firstField, fieldName)
+
+          val firstSchema = inferSchema(
+            firstField.getValue,
+            SchemaBuilder.builder(),
+            fieldName,
+            retriever,
+            namespace + '.' + nodeName
+          )
+
+          node.fields.forEachRemaining(x => {
+            val fieldName = validName(x.getKey)
+            val field = inferSchema(
+              x.getValue,
+              SchemaBuilder.builder(),
+              fieldName,
+              retriever,
+              namespace + '.' + nodeName
+            )
+            fieldList :+ (firstField, fieldName)
+            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(firstField, field)
+          })
+
+          newSchema.name(fieldName)
             .`type`(
-              inferSchema(
-                x.getValue,
-                SchemaBuilder.builder(),
-                fieldName,
-                retriever,
-                namespace + '.' + nodeName
-              )
+              //go through all
             )
             .noDefault()
-        })
+        }
+
         newSchema.endRecord()
 
       case JsonNodeType.BOOLEAN => schema.booleanType()
@@ -107,6 +131,29 @@ object JsonToAvroSchema {
 
       case JsonNodeType.NULL | JsonNodeType.MISSING => schema.stringType()
     }
+
+  private def areSchemaTypesEqual(one: Schema, two: Schema) : Boolean = {
+    val schemaTypes = (one.getType, two.getType)
+    schemaTypes match {
+      case (Type.RECORD, Type.RECORD) => {
+        if(one.getFields.size() != two.getFields.size())
+          return false
+
+        for(i <- 0 until one.getFields.size()) {
+
+          if (one.getFields.get(i).name() != two.getFields.get(i).name() ||
+            !areSchemaTypesEqual(one.getFields.get(i).schema(), two.getFields.get(i).schema()))
+            return false
+        }
+        true
+      }
+      case (Type.ARRAY, Type.ARRAY) => areSchemaTypesEqual(one.getElementType, two.getElementType)
+      case (Type.MAP, Type.MAP) => areSchemaTypesEqual(one.getValueType, two.getValueType)
+      case (x, y) if x == y => true
+      case _ => false
+    }
+
+  }
 
   private def findArrayType[T](
       arrayName: String,
