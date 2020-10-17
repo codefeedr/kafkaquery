@@ -7,6 +7,11 @@ object UserInputRetriever {
 
   var reader: InputReadWrapper = new InputReadWrapper
 
+  /**
+    * Retrieves a character from the reader.
+    * @param allowedChars characters that are accepted answers
+    * @return the retrieved character
+    */
   @tailrec
   def readAllowedChar(allowedChars: List[Char]): Char = {
     println(

@@ -425,7 +425,9 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
         'm'
       )
     )
-
+  /**
+    * Tests for object - map ambiguity feature
+    */
   forAll(objectOrMapData) { (schema: String, jsonSample: String, input: Char) =>
     assertResult(new Schema.Parser().parse(schema)) {
       val inputReaderMock = mock[UserInputRetriever.InputReadWrapper]
