@@ -86,19 +86,23 @@ object JsonToAvroSchema {
         val nodeName = validName(name)
         val fieldIt = node.fields()
 
-        if(fieldIt.hasNext) {
-          val fieldList: ListBuffer[(String, Schema)] = new ListBuffer[(String, Schema)]
+        if (fieldIt.hasNext) {
+          val fieldList: ListBuffer[(String, Schema)] =
+            new ListBuffer[(String, Schema)]
           var allFieldsSameType = true
           val firstField = fieldIt.next()
           val firstFieldName = validName(firstField.getKey)
           fieldList.append(
-            (firstFieldName,
-            inferSchema(
-            firstField.getValue,
-            SchemaBuilder.builder(),
-            firstFieldName,
-            retriever,
-            namespace + '.' + nodeName))
+            (
+              firstFieldName,
+              inferSchema(
+                firstField.getValue,
+                SchemaBuilder.builder(),
+                firstFieldName,
+                retriever,
+                namespace + '.' + nodeName
+              )
+            )
           )
 
           fieldIt.forEachRemaining(x => {
@@ -111,7 +115,10 @@ object JsonToAvroSchema {
               namespace + '.' + nodeName
             )
             fieldList.append((fieldName, fieldSchema))
-            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(fieldList.head._2, fieldSchema)
+            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(
+              fieldList.head._2,
+              fieldSchema
+            )
           })
 
           if (allFieldsSameType) {
@@ -129,8 +136,7 @@ object JsonToAvroSchema {
           fieldList.foreach(x => newSchema.name(x._1).`type`(x._2).noDefault())
           newSchema.endRecord()
 
-        }
-        else {
+        } else {
           // TODO either ask user or do as for arrays
           println("erm")
           schema.record("temp").fields().endRecord()
@@ -146,24 +152,31 @@ object JsonToAvroSchema {
       case JsonNodeType.NULL | JsonNodeType.MISSING => schema.stringType()
     }
 
-  private def areSchemaTypesEqual(one: Schema, two: Schema) : Boolean = {
+  private def areSchemaTypesEqual(one: Schema, two: Schema): Boolean = {
     val schemaTypes = (one.getType, two.getType)
     schemaTypes match {
       case (Type.RECORD, Type.RECORD) =>
-        if(one.getFields.size() != two.getFields.size())
+        if (one.getFields.size() != two.getFields.size())
           return false
 
-        for(i <- 0 until one.getFields.size()) {
+        for (i <- 0 until one.getFields.size()) {
 
-          if (one.getFields.get(i).name() != two.getFields.get(i).name() ||
-            !areSchemaTypesEqual(one.getFields.get(i).schema(), two.getFields.get(i).schema()))
+          if (
+            one.getFields.get(i).name() != two.getFields.get(i).name() ||
+            !areSchemaTypesEqual(
+              one.getFields.get(i).schema(),
+              two.getFields.get(i).schema()
+            )
+          )
             return false
         }
         true
-      case (Type.ARRAY, Type.ARRAY) => areSchemaTypesEqual(one.getElementType, two.getElementType)
-      case (Type.MAP, Type.MAP) => areSchemaTypesEqual(one.getValueType, two.getValueType)
+      case (Type.ARRAY, Type.ARRAY) =>
+        areSchemaTypesEqual(one.getElementType, two.getElementType)
+      case (Type.MAP, Type.MAP) =>
+        areSchemaTypesEqual(one.getValueType, two.getValueType)
       case (x, y) if x == y => true
-      case _ => false
+      case _                => false
     }
 
   }
@@ -204,8 +217,10 @@ object JsonToAvroSchema {
   }
 
   @tailrec
-  private def readAllowedChar(allowedChars : List[Char]): Char = {
-    println("Please insert one of the following characters: " + allowedChars.toSet)
+  private def readAllowedChar(allowedChars: List[Char]): Char = {
+    println(
+      "Please insert one of the following characters: " + allowedChars.toSet
+    )
     val input = StdIn.readChar()
     if (allowedChars.contains(input))
       return input
