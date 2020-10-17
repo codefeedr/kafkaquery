@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import org.apache.avro.Schema.Type
 import org.apache.avro.SchemaBuilder.TypeBuilder
 import org.apache.avro.{Schema, SchemaBuilder}
-import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
+import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -124,7 +124,7 @@ object JsonToAvroSchema {
           if (allFieldsSameType) {
             println("Should this be a map (m) or an object (o)?")
             println(node.toPrettyString)
-            val res = readAllowedChar(List('m', 'o'))
+            val res = UserInputRetriever.readAllowedChar(List('m', 'o'))
 
             // TODO write more neatly
             if (res == 'm') {
@@ -214,16 +214,5 @@ object JsonToAvroSchema {
     )
       return tempName
     '_' + tempName
-  }
-
-  @tailrec
-  private def readAllowedChar(allowedChars: List[Char]): Char = {
-    println(
-      "Please insert one of the following characters: " + allowedChars.toSet
-    )
-    val input = StdIn.readChar()
-    if (allowedChars.contains(input))
-      return input
-    readAllowedChar(allowedChars)
   }
 }

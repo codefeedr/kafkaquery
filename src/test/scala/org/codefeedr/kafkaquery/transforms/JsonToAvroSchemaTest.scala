@@ -1,10 +1,14 @@
 package org.codefeedr.kafkaquery.transforms
 
+import java.io.InputStream
+
 import org.apache.avro.Schema
-import org.codefeedr.kafkaquery.util.KafkaRecordRetriever
+import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
+import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2, TableFor3}
+
+import scala.io.StdIn
 
 class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks with MockitoSugar {
 
@@ -15,30 +19,30 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       ("AvroSchema", "JsonSample"),
       (
         s"""
-          |{
-          |    "type":"record",
-          |    "name":"$topicName",
-          |    "namespace":"infer",
-          |    "fields":[
-          |        {
-          |            "name":"title",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"link",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"description",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"pubDate",
-          |            "type":"long"
-          |        }
-          |    ]
-          |}
-          |""".stripMargin,
+           |{
+           |    "type":"record",
+           |    "name":"$topicName",
+           |    "namespace":"infer",
+           |    "fields":[
+           |        {
+           |            "name":"title",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"link",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"description",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"pubDate",
+           |            "type":"long"
+           |        }
+           |    ]
+           |}
+           |""".stripMargin,
         """
           |{
           |    "title":"test-title",
@@ -50,43 +54,43 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       ),
       (
         s"""
-          |{
-          |    "type":"record",
-          |    "name":"$topicName",
-          |    "namespace":"infer",
-          |    "fields":[
-          |        {
-          |            "name":"colors",
-          |            "type":{
-          |                "type":"array",
-          |                "items":{
-          |                "type":"record",
-          |                "name":"colors",
-          |                "namespace":"infer.$topicName",
-          |                "fields":[
-          |                    {
-          |                        "name":"color",
-          |                        "type":"string"
-          |                    },
-          |                    {
-          |                        "name":"value",
-          |                        "type":"string"
-          |                    },
-          |                    {
-          |                        "name":"other",
-          |                        "type":"long"
-          |                    }
-          |                ]
-          |                }
-          |            }
-          |        },
-          |        {
-          |            "name":"pubDate",
-          |            "type":"long"
-          |        }
-          |    ]
-          |}
-          |""".stripMargin,
+           |{
+           |    "type":"record",
+           |    "name":"$topicName",
+           |    "namespace":"infer",
+           |    "fields":[
+           |        {
+           |            "name":"colors",
+           |            "type":{
+           |                "type":"array",
+           |                "items":{
+           |                "type":"record",
+           |                "name":"colors",
+           |                "namespace":"infer.$topicName",
+           |                "fields":[
+           |                    {
+           |                        "name":"color",
+           |                        "type":"string"
+           |                    },
+           |                    {
+           |                        "name":"value",
+           |                        "type":"string"
+           |                    },
+           |                    {
+           |                        "name":"other",
+           |                        "type":"long"
+           |                    }
+           |                ]
+           |                }
+           |            }
+           |        },
+           |        {
+           |            "name":"pubDate",
+           |            "type":"long"
+           |        }
+           |    ]
+           |}
+           |""".stripMargin,
         """
           |{
           |    "colors":[
@@ -117,38 +121,38 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       ),
       (
         s"""
-          |{
-          |    "type":"record",
-          |    "name":"$topicName",
-          |    "namespace":"infer",
-          |    "fields":[
-          |        {
-          |            "name":"id",
-          |            "type":"long"
-          |        },
-          |        {
-          |            "name":"age",
-          |            "type":"long"
-          |        },
-          |        {
-          |            "name":"year",
-          |            "type":"long"
-          |        },
-          |        {
-          |            "name":"day",
-          |            "type":"long"
-          |        },
-          |        {
-          |            "name":"month",
-          |            "type":"long"
-          |        },
-          |        {
-          |            "name":"weight",
-          |            "type":"double"
-          |        }
-          |    ]
-          |}
-          |""".stripMargin,
+           |{
+           |    "type":"record",
+           |    "name":"$topicName",
+           |    "namespace":"infer",
+           |    "fields":[
+           |        {
+           |            "name":"id",
+           |            "type":"long"
+           |        },
+           |        {
+           |            "name":"age",
+           |            "type":"long"
+           |        },
+           |        {
+           |            "name":"year",
+           |            "type":"long"
+           |        },
+           |        {
+           |            "name":"day",
+           |            "type":"long"
+           |        },
+           |        {
+           |            "name":"month",
+           |            "type":"long"
+           |        },
+           |        {
+           |            "name":"weight",
+           |            "type":"double"
+           |        }
+           |    ]
+           |}
+           |""".stripMargin,
         """
           |{
           |    "id":1,
@@ -162,22 +166,22 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       ),
       (
         s"""
-          |{
-          |    "type":"record",
-          |    "name":"$topicName",
-          |    "namespace":"infer",
-          |    "fields":[
-          |        {
-          |            "name":"id",
-          |            "type":"boolean"
-          |        },
-          |        {
-          |            "name":"pubDate",
-          |            "type":"long"
-          |        }
-          |    ]
-          |}
-          |""".stripMargin,
+           |{
+           |    "type":"record",
+           |    "name":"$topicName",
+           |    "namespace":"infer",
+           |    "fields":[
+           |        {
+           |            "name":"id",
+           |            "type":"boolean"
+           |        },
+           |        {
+           |            "name":"pubDate",
+           |            "type":"long"
+           |        }
+           |    ]
+           |}
+           |""".stripMargin,
         """
           |{
           |    "id":true,
@@ -187,34 +191,34 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       ),
       (
         s"""
-          |{
-          |    "type":"record",
-          |    "name":"$topicName",
-          |    "namespace":"infer",
-          |    "fields":[
-          |        {
-          |            "name":"field_field_",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"_",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"_field",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"_0field",
-          |            "type":"string"
-          |        },
-          |        {
-          |            "name":"pubDate",
-          |            "type":"long"
-          |        }
-          |    ]
-          |}
-          |""".stripMargin,
+           |{
+           |    "type":"record",
+           |    "name":"$topicName",
+           |    "namespace":"infer",
+           |    "fields":[
+           |        {
+           |            "name":"field_field_",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"_",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"_field",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"_0field",
+           |            "type":"string"
+           |        },
+           |        {
+           |            "name":"pubDate",
+           |            "type":"long"
+           |        }
+           |    ]
+           |}
+           |""".stripMargin,
         """
           |{
           |    "field.field/":"test1",
@@ -264,7 +268,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
   /**
     * Parameterized bad weather tests.
     */
-  forAll(exceptionalTestData) {jsonSample: String =>
+  forAll(exceptionalTestData) { jsonSample: String =>
     assertThrows[IllegalArgumentException] {
       val recordRetrieverMock = mock[KafkaRecordRetriever]
       doReturn(Option(jsonSample)).when(recordRetrieverMock).getNextRecord
@@ -272,4 +276,169 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       JsonToAvroSchema.inferSchema(topicName, recordRetrieverMock)
     }
   }
+
+
+  val objectOrMapData: TableFor3[String, String, Char] =
+    Table(
+      ("AvroSchema", "JsonSample", "Object Or Map?"),
+      (
+        """{
+          |  "type" : "record",
+          |  "name" : "myTopic",
+          |  "namespace" : "infer",
+          |  "fields" : [ {
+          |    "name" : "f1",
+          |    "type" : {
+          |      "type" : "record",
+          |      "name" : "f1",
+          |      "namespace" : "infer.myTopic",
+          |      "fields" : [ {
+          |        "name" : "a",
+          |        "type" : "long"
+          |      }, {
+          |        "name" : "bcd",
+          |        "type" : "string"
+          |      } ]
+          |    }
+          |  }, {
+          |    "name" : "f2",
+          |    "type" : {
+          |      "type" : "record",
+          |      "name" : "f2",
+          |      "namespace" : "infer.myTopic",
+          |      "fields" : [ {
+          |        "name" : "a",
+          |        "type" : "long"
+          |      }, {
+          |        "name" : "bcd",
+          |        "type" : "string"
+          |      } ]
+          |    }
+          |  } ]
+          |}""".stripMargin,
+        """
+          |{
+          |"f1": {"a" : 2, "bcd" : "smth"},
+          |"f2": {"a" : 3, "bcd" : "aha"}
+          |}
+          |""".stripMargin,
+        'o'
+      ),
+      (
+        """{
+          |  "type" : "map",
+          |  "values" : {
+          |    "type" : "record",
+          |    "name" : "f1",
+          |    "namespace" : "infer.myTopic",
+          |    "fields" : [ {
+          |      "name" : "a",
+          |      "type" : "long"
+          |    }, {
+          |      "name" : "bcd",
+          |      "type" : "string"
+          |    } ]
+          |  }
+          |}""".stripMargin,
+        """
+          |{
+          |"f1": {"a" : 2, "bcd" : "smth"},
+          |"f2": {"a" : 3, "bcd" : "aha"}
+          |}
+          |""".stripMargin,
+        'm'
+      ),
+      (
+        """{
+          |  "type" : "record",
+          |  "name" : "myTopic",
+          |  "namespace" : "infer",
+          |  "fields" : [ {
+          |    "name" : "f1",
+          |    "type" : {
+          |      "type" : "array",
+          |      "items" : {
+          |        "type" : "record",
+          |        "name" : "f1",
+          |        "namespace" : "infer.myTopic",
+          |        "fields" : [ {
+          |          "name" : "ab",
+          |          "type" : "string"
+          |        }, {
+          |          "name" : "beh",
+          |          "type" : "long"
+          |        } ]
+          |      }
+          |    }
+          |  }, {
+          |    "name" : "f2",
+          |    "type" : {
+          |      "type" : "array",
+          |      "items" : {
+          |        "type" : "record",
+          |        "name" : "f2",
+          |        "namespace" : "infer.myTopic",
+          |        "fields" : [ {
+          |          "name" : "ab",
+          |          "type" : "string"
+          |        }, {
+          |          "name" : "beh",
+          |          "type" : "long"
+          |        } ]
+          |      }
+          |    }
+          |  } ]
+          |}""".stripMargin,
+        """
+          |{
+          |"f1": [{"ab": "cd", "beh" : 1}, {"ab": "hihi", "beh" : 42}],
+          |"f2": [{"ab": "kek", "beh" : 10}, {"ab": "welp", "beh" : 77}]
+          |}
+          |""".stripMargin,
+        'o'
+      ),
+      (
+        """{
+          |  "type" : "map",
+          |  "values" : {
+          |    "type" : "array",
+          |    "items" : {
+          |      "type" : "record",
+          |      "name" : "f1",
+          |      "namespace" : "infer.myTopic",
+          |      "fields" : [ {
+          |        "name" : "ab",
+          |        "type" : "string"
+          |      }, {
+          |        "name" : "beh",
+          |        "type" : "long"
+          |      } ]
+          |    }
+          |  }
+          |}""".stripMargin,
+        """
+          |{
+          |"f1": [{"ab": "cd", "beh" : 1}, {"ab": "hihi", "beh" : 42}],
+          |"f2": [{"ab": "kek", "beh" : 10}, {"ab": "welp", "beh" : 77}]
+          |}
+          |""".stripMargin,
+        'm'
+      )
+    )
+
+  forAll(objectOrMapData) { (schema: String, jsonSample: String, input: Char) =>
+    assertResult(new Schema.Parser().parse(schema)) {
+      val inputReaderMock = mock[UserInputRetriever.InputReadWrapper]
+      when(inputReaderMock.readChar())
+        .thenReturn(input)
+
+      UserInputRetriever.reader = inputReaderMock
+
+      val recordRetrieverMock = mock[KafkaRecordRetriever]
+      doReturn(Option(jsonSample)).when(recordRetrieverMock).getNextRecord
+
+      JsonToAvroSchema.inferSchema(topicName, recordRetrieverMock)
+    }
+  }
+
 }
