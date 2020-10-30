@@ -1,36 +1,48 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.time.Duration
-import java.util.Properties
-
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.databind.node.JsonNodeType
-import org.apache.avro.{Schema, SchemaBuilder}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import org.apache.avro.Schema.Type
 import org.apache.avro.SchemaBuilder.TypeBuilder
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.TopicPartition
-import scala.collection.JavaConverters._
+import org.apache.avro.{Schema, SchemaBuilder}
+import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+import scala.io.StdIn
 
 object JsonToAvroSchema {
 
   /**
     * Infers an Avro schema from a given JSON object.
-    * @param json json data to infer schema from
-    * @param name name of the data source
+    * @param topicName name of the Kafka data source
+    * @param recordRetriever retriever of Kafka records in inverse order of addition
     * @return inferred Avro Schema
     */
-  def inferSchema(json: String, name: String): Schema = {
+  def inferSchema(
+      topicName: String,
+      recordRetriever: KafkaRecordRetriever
+  ): Schema = {
+
     inferSchema(
-      new ObjectMapper().readTree(json),
+      new ObjectMapper().readTree(
+        recordRetriever.getNextRecord.getOrElse(
+          throw new IllegalArgumentException(
+            "Can not infer schema of empty topic."
+          )
+        )
+      ),
       SchemaBuilder.builder(),
-      name
+      topicName,
+      recordRetriever
     )
   }
 
-  private def inferSchema[T](
+  def inferSchema[T](
       node: JsonNode,
       schema: TypeBuilder[T],
       name: String,
+      retriever: KafkaRecordRetriever,
       namespace: String = "infer"
   ): T =
     node.getNodeType match {
@@ -38,19 +50,29 @@ object JsonToAvroSchema {
         val it = node.iterator()
 
         if (!it.hasNext)
-          throw new IllegalArgumentException(
-            "Could not infer schema of empty array."
-          )
+          return findArrayType(name, retriever, schema)
 
         val nodeName = validName(name)
 
         val arrayElemSchema =
-          inferSchema(it.next(), SchemaBuilder.builder(), nodeName, namespace)
+          inferSchema(
+            it.next(),
+            SchemaBuilder.builder(),
+            nodeName,
+            retriever,
+            namespace
+          )
 
         it.forEachRemaining(x =>
           if (
             !arrayElemSchema.equals(
-              inferSchema(x, SchemaBuilder.builder(), nodeName, namespace)
+              inferSchema(
+                x,
+                SchemaBuilder.builder(),
+                nodeName,
+                retriever,
+                namespace
+              )
             )
           )
             throw new IllegalArgumentException(
@@ -62,23 +84,63 @@ object JsonToAvroSchema {
 
       case JsonNodeType.OBJECT | JsonNodeType.POJO =>
         val nodeName = validName(name)
+        val fieldIt = node.fields()
 
-        val newSchema = schema.record(nodeName).namespace(namespace).fields()
-        node.fields.forEachRemaining(x => {
-          val fieldName = validName(x.getKey)
-          newSchema
-            .name(fieldName)
-            .`type`(
+        if (fieldIt.hasNext) {
+          val fieldList: ListBuffer[(String, Schema)] =
+            new ListBuffer[(String, Schema)]
+          var allFieldsSameType = true
+          val firstField = fieldIt.next()
+          val firstFieldName = validName(firstField.getKey)
+          fieldList.append(
+            (
+              firstFieldName,
               inferSchema(
-                x.getValue,
+                firstField.getValue,
                 SchemaBuilder.builder(),
-                fieldName,
+                firstFieldName,
+                retriever,
                 namespace + '.' + nodeName
               )
             )
-            .noDefault()
-        })
-        newSchema.endRecord()
+          )
+
+          fieldIt.forEachRemaining(x => {
+            val fieldName = validName(x.getKey)
+            val fieldSchema = inferSchema(
+              x.getValue,
+              SchemaBuilder.builder(),
+              fieldName,
+              retriever,
+              namespace + '.' + nodeName
+            )
+            fieldList.append((fieldName, fieldSchema))
+            allFieldsSameType = allFieldsSameType && areSchemaTypesEqual(
+              fieldList.head._2,
+              fieldSchema
+            )
+          })
+
+          if (allFieldsSameType) {
+            println("Should this be a map (m) or an object (o)?")
+            println(node.toPrettyString)
+            val res = UserInputRetriever.readAllowedChar(List('m', 'o'))
+
+            // TODO write more neatly
+            if (res == 'm') {
+              return schema.map().values(fieldList.head._2)
+            }
+          }
+
+          val newSchema = schema.record(nodeName).namespace(namespace).fields()
+          fieldList.foreach(x => newSchema.name(x._1).`type`(x._2).noDefault())
+          newSchema.endRecord()
+
+        } else {
+          // TODO either ask user or do as for arrays
+          println("erm")
+          schema.record("temp").fields().endRecord()
+        }
 
       case JsonNodeType.BOOLEAN => schema.booleanType()
 
@@ -87,48 +149,56 @@ object JsonToAvroSchema {
       case JsonNodeType.NUMBER =>
         if (node.isIntegralNumber) schema.longType() else schema.doubleType()
 
-      case JsonNodeType.NULL | JsonNodeType.MISSING => schema.nullType()
+      case JsonNodeType.NULL | JsonNodeType.MISSING => schema.stringType()
     }
 
-  /**
-    * Gets the latest record from the specified topic.
-    * @param topicName name of the topic to fetch record from
-    * @param kafkaAddress address of Kafka instance
-    * @return string with the value of the last record
-    */
-  def retrieveLatestRecordFromTopic(
-      topicName: String,
-      kafkaAddress: String
-  ): String = {
-    val props = new Properties()
-    props.put("bootstrap.servers", kafkaAddress)
-    props.put(
-      "key.deserializer",
-      "org.apache.kafka.common.serialization.StringDeserializer"
+  private def areSchemaTypesEqual(one: Schema, two: Schema): Boolean = {
+    val schemaTypes = (one.getType, two.getType)
+    schemaTypes match {
+      case (Type.RECORD, Type.RECORD) =>
+        if (one.getFields.size() != two.getFields.size())
+          return false
+
+        for (i <- 0 until one.getFields.size()) {
+
+          if (
+            one.getFields.get(i).name() != two.getFields.get(i).name() ||
+            !areSchemaTypesEqual(
+              one.getFields.get(i).schema(),
+              two.getFields.get(i).schema()
+            )
+          )
+            return false
+        }
+        true
+      case (Type.ARRAY, Type.ARRAY) =>
+        areSchemaTypesEqual(one.getElementType, two.getElementType)
+      case (Type.MAP, Type.MAP) =>
+        areSchemaTypesEqual(one.getValueType, two.getValueType)
+      case (x, y) if x == y => true
+      case _                => false
+    }
+
+  }
+
+  private def findArrayType[T](
+      arrayName: String,
+      retriever: KafkaRecordRetriever,
+      schema: TypeBuilder[T]
+  ): T = {
+    val recordString = retriever.getNextRecord
+
+    if (recordString.isEmpty)
+      return schema.stringType()
+
+    val nextRecordNode = new ObjectMapper().readTree(recordString.get)
+
+    inferSchema(
+      nextRecordNode.findPath(arrayName),
+      schema,
+      arrayName,
+      retriever
     )
-    props.put(
-      "value.deserializer",
-      "org.apache.kafka.common.serialization.StringDeserializer"
-    )
-
-    val kafkaConsumer = new KafkaConsumer[String, String](props)
-
-    val partitions = kafkaConsumer
-      .partitionsFor(topicName)
-      .asScala
-      .map(x => new TopicPartition(x.topic(), x.partition()))
-
-    kafkaConsumer.assign(partitions.asJava)
-
-    kafkaConsumer.seekToEnd(List().asJava)
-
-    val latestPartAndPos =
-      partitions.map(x => (x, kafkaConsumer.position(x))).maxBy(_._2)
-    kafkaConsumer.seek(latestPartAndPos._1, latestPartAndPos._2 - 1)
-
-    val records = kafkaConsumer.poll(Duration.ofMillis(100))
-
-    records.iterator().next().value()
   }
 
   /**

@@ -8,7 +8,10 @@ import org.apache.zookeeper.KeeperException
 import org.codefeedr.kafkaquery.commands.QueryCommand
 import org.codefeedr.kafkaquery.parsers.Configurations.{Config, Mode}
 import org.codefeedr.kafkaquery.transforms.JsonToAvroSchema
-import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
+import org.codefeedr.kafkaquery.util.{
+  KafkaRecordRetriever,
+  ZookeeperSchemaExposer
+}
 import scopt.OptionParser
 
 class Parser extends OptionParser[Config]("codefeedr") {
@@ -86,9 +89,8 @@ class Parser extends OptionParser[Config]("codefeedr") {
   opt[(String, String)]("schema-by-string")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_String>")
-    .action({
-      case ((topicName, schema), c) =>
-        c.copy(mode = Mode.Schema, avroSchema = schema, topicName = topicName)
+    .action({ case ((topicName, schema), c) =>
+      c.copy(mode = Mode.Schema, avroSchema = schema, topicName = topicName)
     })
     .text(
       "Inserts the specified Avro Schema (as a String) into ZooKeeper for the specified topic"
@@ -96,13 +98,12 @@ class Parser extends OptionParser[Config]("codefeedr") {
   opt[(String, File)]("schema")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_file>")
-    .action({
-      case ((topicName, schema), c) =>
-        c.copy(
-          mode = Mode.Schema,
-          avroSchema = FileUtils.readFileToString(schema),
-          topicName = topicName
-        )
+    .action({ case ((topicName, schema), c) =>
+      c.copy(
+        mode = Mode.Schema,
+        avroSchema = FileUtils.readFileToString(schema),
+        topicName = topicName
+      )
     })
     .text(
       "Inserts the specified Avro Schema (contained in a file) into ZooKeeper for the specified topic"
@@ -227,10 +228,10 @@ class Parser extends OptionParser[Config]("codefeedr") {
     * @param kafkaAddress address of the kafka instance where the topic is present
     */
   def inferSchema(topicName: String, kafkaAddress: String): Unit = {
-    val record: String =
-      JsonToAvroSchema.retrieveLatestRecordFromTopic(topicName, kafkaAddress)
-
-    val schema = JsonToAvroSchema.inferSchema(record, topicName)
+    val schema = JsonToAvroSchema.inferSchema(
+      topicName,
+      new KafkaRecordRetriever(topicName, kafkaAddress)
+    )
 
     updateSchema(topicName, schema.toString)
   }

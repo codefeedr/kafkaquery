@@ -57,7 +57,7 @@ trait Register {
 
       if (result.isDefined) {
         val ddlString =
-          "CREATE TEMPORARY TABLE " + topicName + " (" +
+          "CREATE TEMPORARY TABLE `" + topicName + "` (" +
             generateFlinkTableSchema(result.get) +
             ") WITH (" +
             "'connector.type' = 'kafka', " +
@@ -132,7 +132,7 @@ trait Register {
     }
 
     if (rowtimeEnabled && !rowtimeFound) {
-      res.append("kafka_time AS PROCTIME(), ")
+      res.append("`kafka_time` AS PROCTIME(), ")
     }
 
     if (res.length() - 2 == res.lastIndexOf(", "))

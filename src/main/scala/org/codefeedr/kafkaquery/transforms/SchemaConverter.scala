@@ -16,31 +16,36 @@ object SchemaConverter {
   def getNestedSchema(
       name: String,
       schema: org.apache.avro.Schema
-  ): (String, java.lang.StringBuilder) =
-    schema.getType match {
-      case Type.NULL    => (name, new java.lang.StringBuilder("NULL"))
-      case Type.STRING  => (name, new java.lang.StringBuilder("STRING"))
-      case Type.FLOAT   => (name, new java.lang.StringBuilder("FLOAT"))
-      case Type.DOUBLE  => (name, new java.lang.StringBuilder("DOUBLE"))
-      case Type.INT     => (name, new java.lang.StringBuilder("INTEGER"))
-      case Type.BOOLEAN => (name, new java.lang.StringBuilder("BOOLEAN"))
-      case Type.LONG    => (name, new java.lang.StringBuilder("BIGINT"))
-      case Type.BYTES   => (name, new java.lang.StringBuilder("BYTES"))
+  ): (String, java.lang.StringBuilder) = {
 
+    val escapedNamed = '`' + name + "`"
+
+    // Reference: https://avro.apache.org/docs/current/spec.html
+    schema.getType match {
+      case Type.STRING => (escapedNamed, new java.lang.StringBuilder("STRING"))
+      case Type.FLOAT  => (escapedNamed, new java.lang.StringBuilder("FLOAT"))
+      case Type.DOUBLE => (escapedNamed, new java.lang.StringBuilder("DOUBLE"))
+      case Type.INT    => (escapedNamed, new java.lang.StringBuilder("INTEGER"))
+      case Type.BOOLEAN =>
+        (escapedNamed, new java.lang.StringBuilder("BOOLEAN"))
+      case Type.LONG  => (escapedNamed, new java.lang.StringBuilder("BIGINT"))
+      case Type.BYTES => (escapedNamed, new java.lang.StringBuilder("BYTES"))
+
+      /* Only unions which can be translated to Flink are those where one of the components is null (i.e. optionals).
+         In that case, the union will simply be represented in Flink as the data type meant to be optional. */
       case Type.UNION =>
         val foundType = schema.getTypes.asScala
-          .map(getNestedSchema(name, _)._2)
-          .find(x => x.toString != "NULL")
+          .find(_.getType != Type.NULL)
+
         (
-          name,
-          if (foundType.isDefined) foundType.get
-          else new java.lang.StringBuilder("NULL")
+          escapedNamed,
+          getNestedSchema(name, foundType.get)._2
         )
 
       // The key for an Avro map must be a string. Avro maps supports only one attribute: values.
       case Type.MAP =>
         (
-          name,
+          escapedNamed,
           new java.lang.StringBuilder("MAP<STRING, ")
             .append(getNestedSchema(name, schema.getValueType)._2)
             .append(">")
@@ -48,7 +53,7 @@ object SchemaConverter {
 
       case org.apache.avro.Schema.Type.ARRAY =>
         (
-          name,
+          escapedNamed,
           new java.lang.StringBuilder("ARRAY<")
             .append(getNestedSchema(name, schema.getElementType)._2)
             .append(">")
@@ -73,9 +78,10 @@ object SchemaConverter {
 
         res.append(">")
 
-        (name, res)
+        (escapedNamed, res)
 
       case _ => throw new RuntimeException("Unsupported type.")
     }
+  }
 
 }
