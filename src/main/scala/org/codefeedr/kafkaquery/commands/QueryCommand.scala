@@ -20,49 +20,42 @@ import org.codefeedr.kafkaquery.transforms.{Register, TimeOutFunction}
 
 import scala.collection.concurrent.TrieMap
 
-class QueryCommand extends Register {
+class QueryCommand(config: Config) {
 
-  /**
-    * Evaluate which action(s) should be made after successfully parsing the given queryConfig.
-    *
-    * @param config configurations of the specified query command.
-    */
-  def apply(config: Config): Unit = {
-    val tuple =
-      registerAndApply(
-        config.queryConfig.query,
-        config.zookeeperAddress,
-        config.kafkaAddress,
-        config.queryConfig.checkLatest
-      )
+  private val stream =
+    Register.registerAndApply(
+      config.queryConfig.query,
+      config.zookeeperAddress,
+      config.kafkaAddress,
+      config.queryConfig.checkLatest
+    )
 
-    if (config.queryConfig.timeout > 0) {
-      tuple._1
-        .keyBy(new NullByteKeySelector[Row]())
-        .process(new TimeOutFunction(config.queryConfig.timeout * 1000))
-    }
-
-    if (config.queryConfig.outTopic.nonEmpty) {
-      queryToKafkaTopic(
-        config.queryConfig.outTopic,
-        tuple._1,
-        config.kafkaAddress
-      )
-    } else if (config.queryConfig.port != -1) {
-      queryToSocket(config.queryConfig.port, tuple._1)
-    } else {
-      queryToConsole(tuple._1)
-    }
-
-    tuple._2.execute()
+  if (config.queryConfig.timeout > 0) {
+    stream
+      .keyBy(new NullByteKeySelector[Row]())
+      .process(new TimeOutFunction(config.queryConfig.timeout * 1000))
   }
+
+  if (config.queryConfig.outTopic.nonEmpty) {
+    queryToKafkaTopic(
+      config.queryConfig.outTopic,
+      stream,
+      config.kafkaAddress
+    )
+  } else if (config.queryConfig.port != -1) {
+    queryToSocket(config.queryConfig.port, stream)
+  } else {
+    queryToConsole(stream)
+  }
+
+  stream.executionEnvironment.execute()
 
   /**
     * Print data stream of query results to console.
     *
     * @param ds datastream of query output
     */
-  def queryToConsole(ds: DataStream[Row]): Unit = {
+  private def queryToConsole(ds: DataStream[Row]): Unit = {
     ds.print()
   }
 
@@ -72,7 +65,7 @@ class QueryCommand extends Register {
     * @param port socket port number
     * @param ds   data stream of query output which should be written to socket.
     */
-  def queryToSocket(port: Int, ds: DataStream[Row]): Unit = {
+  private def queryToSocket(port: Int, ds: DataStream[Row]): Unit = {
     val server: ServerSocket = new ServerSocket(port)
 
     new Thread {
@@ -129,7 +122,7 @@ class QueryCommand extends Register {
     * @param outTopic topic name to write results to
     * @param ds       data stream of query output
     */
-  def queryToKafkaTopic(
+  private def queryToKafkaTopic(
       outTopic: String,
       ds: DataStream[Row],
       kafkaAddress: String

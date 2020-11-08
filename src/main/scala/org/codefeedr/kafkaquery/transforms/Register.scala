@@ -10,7 +10,7 @@ import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
 
 import scala.collection.JavaConverters._
 
-trait Register {
+object Register {
 
   /**
     * Register and apply the tables of the given query
@@ -27,7 +27,7 @@ trait Register {
       zookeeperAddress: String,
       kafkaAddress: String,
       startLatest: Boolean
-  ): (DataStream[Row], StreamExecutionEnvironment) = {
+  ): DataStream[Row] = {
 
     val zk = new ZookeeperSchemaExposer(zookeeperAddress)
 
@@ -75,7 +75,7 @@ trait Register {
       }
     }
 
-    (fsTableEnv.sqlQuery(query).toRetractStream[Row].map(_._2), fsEnv)
+    fsTableEnv.sqlQuery(query).toRetractStream[Row].map(_._2)
   }
 
   /**
@@ -85,7 +85,7 @@ trait Register {
     * @param supportedPlugins list of supported plugins from zookeeper
     * @return the subset of supported plugins
     */
-  def extractTopics(
+  private def extractTopics(
       query: String,
       supportedPlugins: List[String]
   ): List[String] = {

@@ -45,7 +45,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
   "org.apache.flink"           % "flink-json"                     % flinkVersion,
 
-  "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test classifier "tests",
+  "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test,
   "org.apache.flink"          %% "flink-runtime"                  % flinkVersion      % Test classifier "tests",
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 

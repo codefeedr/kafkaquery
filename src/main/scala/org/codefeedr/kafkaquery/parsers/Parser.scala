@@ -134,7 +134,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
       case Some(config) =>
         initZookeeperExposer(config.zookeeperAddress)
         config.mode match {
-          case Mode.Query  => new QueryCommand()(config)
+          case Mode.Query  => new QueryCommand(config)
           case Mode.Topic  => printSchema(config.topicName)
           case Mode.Topics => printTopics()
           case Mode.Schema =>
