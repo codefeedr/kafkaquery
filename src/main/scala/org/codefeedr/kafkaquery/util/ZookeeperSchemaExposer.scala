@@ -54,6 +54,8 @@ class ZookeeperSchemaExposer(
     }
   }
 
+  def getHost: String = host
+
   /** Stores a schema bound to a subject.
     *
     * @param schema  The schema belonging to that topic.
