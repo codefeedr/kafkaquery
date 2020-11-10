@@ -8,10 +8,11 @@ import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.test.util.MiniClusterWithClientResource
 import org.apache.flink.types.Row
+import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class QuerySetupOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka {
+class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka {
 
   val flinkCluster = new MiniClusterWithClientResource(new MiniClusterResourceConfiguration.Builder()
     .setNumberSlotsPerTaskManager(1)
@@ -37,7 +38,7 @@ class QuerySetupOutputTest extends AnyFunSuite with BeforeAndAfter with Embedded
     val outContent = new ByteArrayOutputStream
     System.setOut(new PrintStream(outContent))
 
-    QuerySetup.queryToConsole(ds)
+    QueryOutput.selectOutput(ds, QueryConfig(), "")
     env.execute()
 
     System.out.flush()
@@ -59,7 +60,7 @@ class QuerySetupOutputTest extends AnyFunSuite with BeforeAndAfter with Embedded
     withRunningKafkaOnFoundPort(config) {
       implicit config =>
 
-      QuerySetup.queryToKafkaTopic(topicName, ds, "localhost:" + config.kafkaPort)
+      QueryOutput.selectOutput(ds, QueryConfig(outTopic = topicName),"localhost:" + config.kafkaPort)
       env.execute()
 
       assertResult(consumeFirstMessageFrom(topicName))("val1")

@@ -1,25 +1,27 @@
 package org.codefeedr.kafkaquery.transforms
 
+import java.lang
+
 import org.apache.avro.Schema
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor2}
 
-class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPropertyChecks {
+class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPropertyChecks {
 
   test("Topics should correctly be extracted from query") {
     val res = QuerySetup.extractTopics("SELECT * from t1, t2, t3", List("t2", "t3", "t4"))
     assert(res == List("t2", "t3"))
   }
 
-  val testDatagetTableCreationCommand: TableFor2[Boolean, String] =
+  val testDataGetTableCreationCommand: TableFor2[Boolean, String] =
     Table(
       ("checkLatest", "offsetText"),
 
       (false, "earliest-offset"),
       (true, "latest-offset")
     )
-  forAll(testDatagetTableCreationCommand) { (checkLatest: Boolean, offsetText: String) =>
+  forAll(testDataGetTableCreationCommand) { (checkLatest: Boolean, offsetText: String) =>
     val tableName = "t1"
     val tableFields = "(f1 INT, f2 STRING)"
     val kafkaAddr = "localhost:9092"
@@ -50,7 +52,7 @@ class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDri
           |     ]
           |}
           |""".stripMargin,
-        "f1 STRING, f2 INTEGER, `kafka_time` AS PROCTIME()"
+        "field field type, field field type, `kafka_time` AS PROCTIME()"
       ),
       (
         """
@@ -64,7 +66,7 @@ class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDri
           |     ]
           |}
           |""".stripMargin,
-        "f1 STRING, f2 INTEGER"
+        "field field type, field field type"
       ),
       (
         """
@@ -77,14 +79,15 @@ class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDri
           |     ]
           |}
           |""".stripMargin,
-        "f1 STRING, f2 TIMESTAMP(3), WATERMARK FOR f2 AS f2 - INTERVAL '0.001' SECOND"
+        "field field type, field TIMESTAMP(3), WATERMARK FOR field AS field - INTERVAL '0.001' SECOND"
       )
     )
   forAll(testDataGenerateTableSchema) { (schemaStr: String, tableDesc: String) =>
     assertResult(
       tableDesc
     )(
-      QuerySetup.generateTableSchema(new Schema.Parser().parse(schemaStr)).toString
+      QuerySetup.generateTableSchema(new Schema.Parser().parse(schemaStr),
+        (_, _) => ("field", new lang.StringBuilder("field type"))).toString
     )
   }
 

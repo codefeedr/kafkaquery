@@ -10,7 +10,12 @@ import org.apache.flink.table.api.bridge.scala.{
 }
 import org.apache.flink.types.Row
 import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
-import org.codefeedr.kafkaquery.transforms.{QuerySetup, TimeOutFunction}
+import org.codefeedr.kafkaquery.transforms.SchemaConverter.getNestedSchema
+import org.codefeedr.kafkaquery.transforms.{
+  QueryOutput,
+  QuerySetup,
+  TimeOutFunction
+}
 import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
 
 class QueryCommand(
@@ -34,8 +39,6 @@ class QueryCommand(
   val fsTableEnv: StreamTableEnvironment =
     StreamTableEnvironment.create(fsEnv, fsSettings)
 
-  //
-
   private val supportedFormats = zkExposer.getAllChildren
   println("Supported Plugins: " + supportedFormats)
 
@@ -49,7 +52,7 @@ class QueryCommand(
     if (result.isDefined) {
       val ddlString = QuerySetup.getTableCreationCommand(
         topicName,
-        QuerySetup.generateTableSchema(result.get),
+        QuerySetup.generateTableSchema(result.get, getNestedSchema),
         kafkaAddr,
         qConfig.checkLatest
       )
@@ -61,25 +64,12 @@ class QueryCommand(
   private val ds =
     fsTableEnv.sqlQuery(qConfig.query).toRetractStream[Row].map(_._2)
 
-  //
-
   if (qConfig.timeout > 0) {
     ds
       .keyBy(new NullByteKeySelector[Row]())
       .process(new TimeOutFunction(qConfig.timeout * 1000))
   }
-
-  if (qConfig.outTopic.nonEmpty) {
-    QuerySetup.queryToKafkaTopic(
-      qConfig.outTopic,
-      ds,
-      kafkaAddr
-    )
-  } else if (qConfig.port != -1) {
-    QuerySetup.queryToSocket(qConfig.port, ds)
-  } else {
-    QuerySetup.queryToConsole(ds)
-  }
+  QueryOutput.selectOutput(ds, qConfig, kafkaAddr)
 
   ds.executionEnvironment.execute()
 
