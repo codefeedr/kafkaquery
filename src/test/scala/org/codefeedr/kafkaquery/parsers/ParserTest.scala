@@ -1,6 +1,6 @@
 package org.codefeedr.kafkaquery.parsers
 
-import java.io.{ByteArrayOutputStream, File, PrintWriter}
+import java.io.{ByteArrayOutputStream, File, OutputStream, PrintWriter}
 
 import com.sksamuel.avro4s.AvroSchema
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
@@ -165,13 +165,10 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
     )
 
     Console.withErr(outStream) {
-
       parser.parseConfig(args)
-
-      assertResult("Error: Cannot start from earliest and latest.\nTry --help for more information.") {
-        outStream.toString.trim
-      }
+      assertResult(outStream.toString.lines.toArray)(Array("Error: Cannot start from earliest and latest.", "Try --help for more information."))
     }
+
   }
 
   test("testPrintSchema") {
@@ -186,7 +183,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
         parser.printSchema(topic)
 
         assertResult(format.trim) {
-          outStream.toString().trim
+          outStream.toString()
         }
       }
     }
