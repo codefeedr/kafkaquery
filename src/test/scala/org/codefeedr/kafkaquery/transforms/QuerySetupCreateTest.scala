@@ -25,7 +25,7 @@ class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDri
     val kafkaAddr = "localhost:9092"
 
     assertResult(
-      s"CREATE TEMPORARY TABLE t1 ((f1 INT, f2 STRING)) WITH ('connector.type' = 'kafka', " +
+      s"CREATE TEMPORARY TABLE `t1` ((f1 INT, f2 STRING)) WITH ('connector.type' = 'kafka', " +
         s"'connector.version' = 'universal', 'connector.topic' = 't1', 'connector.properties.bootstrap.servers' " +
         s"= 'localhost:9092', 'connector.startup-mode' = '$offsetText', 'format.type' = 'json', " +
         s"'format.fail-on-missing-field' = 'false')"
@@ -50,7 +50,7 @@ class QuerySetupCreateTest extends AnyFunSuite with BeforeAndAfter with TableDri
           |     ]
           |}
           |""".stripMargin,
-        "f1 STRING, f2 INTEGER, kafka_time AS PROCTIME()"
+        "f1 STRING, f2 INTEGER, `kafka_time` AS PROCTIME()"
       ),
       (
         """

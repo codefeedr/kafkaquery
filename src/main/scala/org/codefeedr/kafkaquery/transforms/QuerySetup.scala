@@ -48,7 +48,7 @@ object QuerySetup {
       kafkaAddr: String,
       checkLatest: Boolean
   ): String = {
-    "CREATE TEMPORARY TABLE " + name + " (" + tableFields + ") " +
+    "CREATE TEMPORARY TABLE `" + name + "` (" + tableFields + ") " +
       "WITH (" +
       "'connector.type' = 'kafka', " +
       "'connector.version' = 'universal', " +
@@ -94,7 +94,7 @@ object QuerySetup {
     }
 
     if (rowtimeEnabled && !rowtimeFound) {
-      res.append("kafka_time AS PROCTIME(), ")
+      res.append("`kafka_time` AS PROCTIME(), ")
     }
 
     if (res.length() - 2 == res.lastIndexOf(", "))
