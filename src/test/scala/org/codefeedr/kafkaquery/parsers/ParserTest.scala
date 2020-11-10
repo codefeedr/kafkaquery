@@ -182,8 +182,8 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
         parser.printSchema(topic)
 
-        assertResult(format.trim) {
-          outStream.toString()
+        assertResult(format.replaceAll("[\r\n]", "")) {
+          outStream.toString().replaceAll("[\r\n]", "")
         }
       }
     }
