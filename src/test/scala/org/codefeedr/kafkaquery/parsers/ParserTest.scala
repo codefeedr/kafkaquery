@@ -1,6 +1,6 @@
 package org.codefeedr.kafkaquery.parsers
 
-import java.io.{ByteArrayOutputStream, File, OutputStream, PrintWriter}
+import java.io.{ByteArrayOutputStream, File, PrintWriter}
 
 import com.sksamuel.avro4s.AvroSchema
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}

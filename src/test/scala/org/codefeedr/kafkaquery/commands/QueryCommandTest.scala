@@ -1,8 +1,88 @@
 package org.codefeedr.kafkaquery.commands
 
-import net.manub.embeddedkafka.EmbeddedKafka
+import java.util
+
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import org.apache.avro.Schema
+import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.test.util.MiniClusterWithClientResource
+import org.apache.flink.types.Row
+import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
+import org.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class QueryCommandTest extends AnyFunSuite with EmbeddedKafka {
+class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka with MockitoSugar {
+
+  val flinkCluster = new MiniClusterWithClientResource(new MiniClusterResourceConfiguration.Builder()
+    .setNumberSlotsPerTaskManager(1)
+    .setNumberTaskManagers(1)
+    .build)
+
+  before {
+    flinkCluster.before()
+  }
+
+  after {
+    flinkCluster.after()
+  }
+
+  test ("Query should run and produce expected results") {
+    CollectRowSink.values.clear()
+
+    val tableName = "t1"
+
+    val zkExposerMock = mock[ZookeeperSchemaExposer]
+    doReturn(List("t1", "t2")).when(zkExposerMock).getAllChildren
+    val t1Schema = new Schema.Parser().parse(
+      """
+        |{ "type": "record", "name": "t1", "fields": [ { "name": "f1", "type": "string" },
+        |{ "name": "f2", "type": "int" } ], "rowtime": "false" }
+        |""".stripMargin)
+    doReturn(Option(t1Schema)).when(zkExposerMock).get(tableName)
+
+    implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(
+      kafkaPort = 0,
+      zooKeeperPort = 0
+    )
+
+    withRunningKafkaOnFoundPort(config) { implicit config =>
+      publishStringMessageToKafka(tableName, """{ "f1": "val1", "f2": 1 }""")
+      publishStringMessageToKafka(tableName, """{ "f1": "val2", "f2": 2 }""")
+      publishStringMessageToKafka(tableName, "")
+
+      val qc = new QueryCommand(
+        QueryConfig(timeout = 2, query = "select f1 from t1", checkEarliest = true),
+        zkExposerMock,
+        s"localhost:${config.kafkaPort}"
+      )
+      qc.ds.addSink(new CollectRowSink)
+
+      try {
+        qc.execute()
+      } catch {
+        case _: JobExecutionException =>
+      }
+
+      assertResult(CollectRowSink.values)(util.List.of(Row.of("val1"), Row.of("val2")))
+    }
+
+  }
 
 }
+
+class CollectRowSink extends SinkFunction[Row] {
+  override def invoke(value: Row, context: SinkFunction.Context[_]): Unit = {
+    synchronized {
+    CollectRowSink.values.add(value)
+    }
+  }
+}
+
+object CollectRowSink {
+  val values: util.List[Row] = new util.ArrayList[Row]
+}
+

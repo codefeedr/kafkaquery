@@ -61,16 +61,16 @@ class QueryCommand(
     }
   }
 
-  private val ds =
+  val ds: DataStream[Row] =
     fsTableEnv.sqlQuery(qConfig.query).toRetractStream[Row].map(_._2)
 
   if (qConfig.timeout > 0) {
     ds
       .keyBy(new NullByteKeySelector[Row]())
-      .process(new TimeOutFunction(qConfig.timeout * 1000))
+      .process(new TimeOutFunction(qConfig.timeout * 1000, qConfig.timeoutFunc))
   }
   QueryOutput.selectOutput(ds, qConfig, kafkaAddr)
 
-  ds.executionEnvironment.execute()
+  def execute(): Unit = ds.executionEnvironment.execute()
 
 }

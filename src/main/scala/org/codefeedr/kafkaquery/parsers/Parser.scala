@@ -137,7 +137,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
               config.queryConfig,
               zookeeperExposer,
               config.kafkaAddress
-            )
+            ).execute()
           case Mode.Topic  => printSchema(config.topicName)
           case Mode.Topics => printTopics()
           case Mode.Schema =>

@@ -13,7 +13,7 @@ import org.apache.flink.util.Collector
   */
 class TimeOutFunction( // delay after which an alert flag is thrown
     val timeOut: Long,
-    val func: () => Unit = () => System.exit(0)
+    val func: () => Unit
 ) extends KeyedProcessFunction[java.lang.Byte, Row, Boolean] {
   // state to remember the last timer set
   private var lastTimer: ValueState[Long] = _
