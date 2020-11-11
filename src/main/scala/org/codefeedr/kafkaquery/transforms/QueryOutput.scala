@@ -14,6 +14,7 @@ import org.apache.flink.streaming.connectors.kafka.{
 import org.apache.flink.types.Row
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.sinks.SimplePrintSinkFunction
 
 import scala.collection.concurrent.TrieMap
 
@@ -43,7 +44,7 @@ object QueryOutput {
     * @param ds datastream of query output
     */
   private def queryToConsole(ds: DataStream[Row]): Unit = {
-    ds.print()
+    ds.addSink(new SimplePrintSinkFunction[Row]())
   }
 
   /**
