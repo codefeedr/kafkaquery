@@ -71,6 +71,6 @@ class QueryCommand(
   }
   QueryOutput.selectOutput(ds, qConfig, kafkaAddr)
 
-  def execute(): Unit = ds.executionEnvironment.execute()
+  def execute(): Unit = fsEnv.execute()
 
 }

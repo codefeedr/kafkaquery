@@ -1,12 +1,9 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.io.IOException
-import java.net.{ServerSocket, Socket}
 import java.nio.charset.StandardCharsets
 import java.util.Properties
 
-import org.apache.flink.api.common.serialization.SimpleStringSchema
-import org.apache.flink.streaming.api.scala.{DataStream, createTypeInformation}
+import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.{
   FlinkKafkaProducer,
   KafkaSerializationSchema
@@ -14,9 +11,7 @@ import org.apache.flink.streaming.connectors.kafka.{
 import org.apache.flink.types.Row
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
-import org.codefeedr.kafkaquery.sinks.SimplePrintSinkFunction
-
-import scala.collection.concurrent.TrieMap
+import org.codefeedr.kafkaquery.sinks.{SimplePrintSinkFunction, SocketSink}
 
 object QueryOutput {
 
@@ -54,57 +49,8 @@ object QueryOutput {
     * @param ds   data stream of query output which should be written to socket.
     * @return output port
     */
-  private def queryToSocket(port: Int, ds: DataStream[Row]): Int = {
-    val server: ServerSocket = new ServerSocket(port)
-
-    new Thread {
-      override def run(): Unit = {
-        val flinkClient: Socket = server.accept()
-        val clientMap = new TrieMap[String, Socket]()
-
-        println(
-          s"Writing query output to available sockets on port ${server.getLocalPort}..."
-        )
-
-        new Thread {
-          override def run(): Unit = {
-            while (true) {
-              val text = flinkClient.getInputStream.readNBytes(
-                flinkClient.getInputStream.available()
-              )
-              clientMap.values.foreach(x => {
-                try {
-                  x.getOutputStream.write(text)
-                } catch {
-                  case _: IOException =>
-                    clientMap.remove(s"""${x.getInetAddress}:${x.getPort}""")
-                    x.close()
-                    println(
-                      s"""Client ${x.getInetAddress}:${x.getPort} disconnected."""
-                    )
-                }
-              })
-            }
-          }
-        }.start()
-
-        while (true) {
-          val newSocket = server.accept()
-          println(
-            s"""Client ${newSocket.getInetAddress}:${newSocket.getPort} connected."""
-          )
-          clientMap.put(
-            s"""${newSocket.getInetAddress}:${newSocket.getPort}""",
-            newSocket
-          )
-        }
-      }
-    }.start()
-
-    ds.map(_.toString + "\n")
-      .writeToSocket("localhost", server.getLocalPort, new SimpleStringSchema)
-
-    server.getLocalPort
+  private def queryToSocket(port: Int, ds: DataStream[Row]): Unit = {
+    ds.addSink(new SocketSink[Row](port))
   }
 
   /**
