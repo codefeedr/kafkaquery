@@ -13,8 +13,7 @@ import scala.io.StdIn
 
 object JsonToAvroSchema {
 
-  /**
-    * Infers an Avro schema from a given JSON object.
+  /** Infers an Avro schema from a given JSON object.
     * @param topicName name of the Kafka data source
     * @param recordRetriever retriever of Kafka records in inverse order of addition
     * @return inferred Avro Schema
@@ -201,8 +200,7 @@ object JsonToAvroSchema {
     )
   }
 
-  /**
-    * Modified name to ensure it adheres to Avro requirements by replacing illegal characters with '_'.
+  /** Modified name to ensure it adheres to Avro requirements by replacing illegal characters with '_'.
     * @param name original name of the field
     * @return valid name accepted by Avro
     */

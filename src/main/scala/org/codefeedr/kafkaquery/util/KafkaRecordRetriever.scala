@@ -48,8 +48,7 @@ class KafkaRecordRetriever(
   private val partBegOffsetMap =
     kafkaConsumer.beginningOffsets(partitions).asScala
 
-  /**
-    * Retrieves the next record from the inverse order.
+  /** Retrieves the next record from the inverse order.
     * @return the next record that has not been retrieved yet,
     *         provided the max amount of records has not been reached and more records are available.
     */

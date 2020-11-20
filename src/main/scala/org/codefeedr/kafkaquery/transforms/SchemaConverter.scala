@@ -6,8 +6,7 @@ import scala.collection.JavaConverters._
 
 object SchemaConverter {
 
-  /**
-    * Getter for the nested Avro schema.
+  /** Getter for the nested Avro schema.
     *
     * @param name name of the schema
     * @param schema schema of current level

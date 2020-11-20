@@ -33,8 +33,7 @@ object QueryOutput {
     }
   }
 
-  /**
-    * Print data stream of query results to console.
+  /** Print data stream of query results to console.
     *
     * @param ds datastream of query output
     */
@@ -42,8 +41,7 @@ object QueryOutput {
     ds.addSink(new SimplePrintSinkFunction[Row]())
   }
 
-  /**
-    * Write query results to socket of given port.
+  /** Write query results to socket of given port.
     *
     * @param port socket port number (0 - random)
     * @param ds   data stream of query output which should be written to socket.
@@ -53,8 +51,7 @@ object QueryOutput {
     ds.addSink(new SocketSink[Row](port))
   }
 
-  /**
-    * Write query results to given Kafka topic.
+  /** Write query results to given Kafka topic.
     *
     * @param outTopic topic name to write results to
     * @param ds       data stream of query output
