@@ -134,8 +134,7 @@ class ZookeeperSchemaExposer(
     client.delete(s"$root", -1)
   }
 
-  /**
-    * Getter for all children in zookeeper path.
+  /** Getter for all children in zookeeper path.
     * @return list of all children in zookeeper path
     */
   def getAllChildren: List[String] = {

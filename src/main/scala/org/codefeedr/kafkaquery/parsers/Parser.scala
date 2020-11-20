@@ -153,8 +153,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     }
   }
 
-  /**
-    * Updates the AvroSchema in Zookeeper for the specified topic
+  /** Updates the AvroSchema in Zookeeper for the specified topic
     *
     * @param topicName    topic Name
     * @param schemaString an Avro Schema in String format.
@@ -172,8 +171,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
       zookeeperExposer.put(schema, topicName)
   }
 
-  /**
-    * List all topic names stored in Zookeeper.
+  /** List all topic names stored in Zookeeper.
     */
   def printTopics(): Unit = {
     val children = zookeeperExposer.getAllChildren
@@ -192,8 +190,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     }
   }
 
-  /**
-    * Prints the schema associated with the topic
+  /** Prints the schema associated with the topic
     *
     * @param topicName name of the topic in zookeeper
     */
@@ -206,8 +203,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     }
   }
 
-  /**
-    * Initialises the ZookeeperSchemaExposer.
+  /** Initialises the ZookeeperSchemaExposer.
     *
     * @return success of the initialisation
     */
@@ -227,8 +223,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     zookeeperExposer = zk
   }
 
-  /**
-    * Executes the steps required for infering a schema.
+  /** Executes the steps required for infering a schema.
     * @param topicName name of the topic to be inferred
     * @param kafkaAddress address of the kafka instance where the topic is present
     */

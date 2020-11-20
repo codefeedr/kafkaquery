@@ -6,8 +6,7 @@ import scala.collection.JavaConverters._
 
 object QuerySetup {
 
-  /**
-    * Extract the table names from the query and return the ones that are supported.
+  /** Extract the table names from the query and return the ones that are supported.
     *
     * @param query            sql query to be matched
     * @param supportedPlugins list of supported plugins from zookeeper
@@ -20,8 +19,7 @@ object QuerySetup {
     supportedPlugins.intersect(query.split("\\s+|,|;|\\(|\\)|`"))
   }
 
-  /**
-    * Returns the Flink DDL for creating the specified temporary table.
+  /** Returns the Flink DDL for creating the specified temporary table.
     * @param name name of the table/Kafka topic
     * @param tableFields DDL StringBuilder of the table fields
     * @param kafkaAddr Kafka server address
@@ -48,8 +46,7 @@ object QuerySetup {
       ")"
   }
 
-  /**
-    * Generate a Flink table schema from an Avro Schema.
+  /** Generate a Flink table schema from an Avro Schema.
     *
     * @param avroSchema  the Avro Schema
     * @return a java.lang.StringBuilder with the DDL description of the schema
