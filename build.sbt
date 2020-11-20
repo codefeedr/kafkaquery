@@ -16,8 +16,8 @@ enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
 lazy val flinkVersion       = "1.11.2"
-lazy val log4jVersion       = "2.13.3"
-lazy val scalatestVersion   = "3.2.3"
+lazy val log4jVersion       = "2.14.0"
+lazy val scalatestVersion   = "3.2.2"
 
 libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
@@ -34,18 +34,18 @@ libraryDependencies ++= Seq(
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
-  "org.mockito"               %% "mockito-scala"                  % "1.16.0"          % Test,
+  "org.mockito"               %% "mockito-scala"                  % "1.16.3"          % Test,
 
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.1.1"         % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.0",
-  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.0",
+  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.1",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
   "org.apache.flink"           % "flink-json"                     % flinkVersion,
 
-  "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test classifier "tests",
+  "org.apache.flink"          %% "flink-test-utils"               % flinkVersion      % Test,
   "org.apache.flink"          %% "flink-runtime"                  % flinkVersion      % Test classifier "tests",
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 

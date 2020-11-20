@@ -54,6 +54,8 @@ class ZookeeperSchemaExposer(
     }
   }
 
+  def getHost: String = host
+
   /** Stores a schema bound to a subject.
     *
     * @param schema  The schema belonging to that topic.
@@ -132,8 +134,7 @@ class ZookeeperSchemaExposer(
     client.delete(s"$root", -1)
   }
 
-  /**
-    * Getter for all children in zookeeper path.
+  /** Getter for all children in zookeeper path.
     * @return list of all children in zookeeper path
     */
   def getAllChildren: List[String] = {

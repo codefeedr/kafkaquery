@@ -6,14 +6,13 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction
 import org.apache.flink.types.Row
 import org.apache.flink.util.Collector
 
-/**
-  * Function which throws an alert flag after a specified amount of time without having received new records has passed.
+/** Function which throws an alert flag after a specified amount of time without having received new records has passed.
   * @param timeOut delay after which an alert flag is thrown (in ms)
   * @param func function to be executed on timer trigger
   */
 class TimeOutFunction( // delay after which an alert flag is thrown
     val timeOut: Long,
-    val func: () => Unit = () => System.exit(0)
+    val func: () => Unit
 ) extends KeyedProcessFunction[java.lang.Byte, Row, Boolean] {
   // state to remember the last timer set
   private var lastTimer: ValueState[Long] = _

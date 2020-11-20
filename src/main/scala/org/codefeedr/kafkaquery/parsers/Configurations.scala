@@ -4,8 +4,7 @@ import org.codefeedr.kafkaquery.parsers.Configurations.Mode.Mode
 
 object Configurations {
 
-  /**
-    * Config which contains all the copied the arguments from the CLI
+  /** Config which contains all the copied the arguments from the CLI
     *
     * @param mode        an enum of the command being used
     * @param queryConfig query config containing the arguments related to the query
@@ -22,16 +21,14 @@ object Configurations {
       zookeeperAddress: String = sys.env.getOrElse("ZK_ADDR", "localhost:2181")
   )
 
-  /**
-    * Mode decides which config arguments to choose
+  /** Mode decides which config arguments to choose
     */
   object Mode extends Enumeration {
     type Mode = Value
     val Query, Topic, Topics, Schema, Infer = Value
   }
 
-  /**
-    * Query config which contains copied arguments from the CLI
+  /** Query config which contains copied arguments from the CLI
     *
     * @param query       query string
     * @param outTopic    output Kafka topic
@@ -45,6 +42,7 @@ object Configurations {
       outTopic: String = "",
       port: Int = -1,
       timeout: Int = -1,
+      timeoutFunc: () => Unit = () => System.exit(0),
       checkEarliest: Boolean = false,
       checkLatest: Boolean = false,
       pack: Boolean = false
