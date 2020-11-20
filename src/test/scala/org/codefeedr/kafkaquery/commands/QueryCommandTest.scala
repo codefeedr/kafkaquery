@@ -1,124 +1,88 @@
 package org.codefeedr.kafkaquery.commands
 
-import java.io.{BufferedReader, ByteArrayOutputStream, InputStreamReader, PrintStream}
-import java.net.Socket
-import java.util.Properties
+import java.util
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import org.apache.flink.api.common.serialization.DeserializationSchema
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
+import org.apache.avro.Schema
+import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.test.util.MiniClusterWithClientResource
 import org.apache.flink.types.Row
-import org.codefeedr.kafkaquery.parsers.Configurations.{Config, QueryConfig}
-import org.codefeedr.kafkaquery.transforms.CollectRowSink
-import org.mockito.internal.stubbing.answers.CallsRealMethods
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
+import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
+class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka with MockitoSugar {
 
-class QueryCommandTest extends AnyFunSuite with EmbeddedKafka with MockitoSugar with ArgumentMatchersSugar with BeforeAndAfter {
-
-  var env: StreamExecutionEnvironment = _
-  var queryCommandMock: QueryCommand = _
-
-  implicit val typeInfo: TypeInformation[Row] = TypeInformation.of(classOf[Row])
-
-  val pypiMessages: List[Row] = List(
-    Row.of("title1"),
-    Row.of("title2"),
-    Row.of("title3")
-  )
+  val flinkCluster = new MiniClusterWithClientResource(new MiniClusterResourceConfiguration.Builder()
+    .setNumberSlotsPerTaskManager(1)
+    .setNumberTaskManagers(1)
+    .build)
 
   before {
-    CollectRowSink.result.clear()
-    env = StreamExecutionEnvironment.getExecutionEnvironment
-    env.setParallelism(1)
-    val ds = env.fromCollection(pypiMessages)
-    queryCommandMock = mock[QueryCommand](new CallsRealMethods())
-    doReturn((ds, env)).when(queryCommandMock)
-      .registerAndApply(any[String], any[String], any[String], any[Boolean])
+    flinkCluster.before()
   }
 
-  test("queryToConsole") {
-    val oldOut = System.out
-    val outContent = new ByteArrayOutputStream
-    System.setOut(new PrintStream(outContent))
-    queryCommandMock.apply(Config(queryConfig = QueryConfig(timeout = 1)))
-    System.setOut(oldOut)
-    assert(outContent.toString.replaceAll("[\n|\r]", "") == "title1title2title3")
+  after {
+    flinkCluster.after()
   }
 
-  test("queryToSocket") {
-    var port = 0
-    val buffOut = new ByteArrayOutputStream()
-    // Get available port from server
-    Console.withOut(buffOut) {
-      new Thread {
-        override def run(): Unit = {
-          queryCommandMock.apply(Config(queryConfig = QueryConfig(port = port)))
-        }
-      }.start()
-      val reg = """Writing query output to available sockets on port (\d+)\.\.\.""".r
-      while (buffOut.toString.isEmpty && !reg.pattern.matcher(buffOut.toString).matches) {}
-      port = reg.findFirstMatchIn(buffOut.toString).get.group(1).toInt
-    }
-    val buffIn = new BufferedReader(new InputStreamReader(new Socket("localhost", port).getInputStream))
-    val socketLines = new ListBuffer[String]
-    while (socketLines.size < 3) socketLines += buffIn.readLine
-    assert(socketLines.toList == List("title1", "title2", "title3"))
-  }
+  test ("Query should run and produce expected results") {
+    CollectRowSink.values.clear()
 
-  test("queryToKafkaTopic") {
-    val portKafka = 32581
-    val portZookeeper = 32582
+    val tableName = "t1"
+
+    val zkExposerMock = mock[ZookeeperSchemaExposer]
+    doReturn(List("t1", "t2")).when(zkExposerMock).getAllChildren
+    val t1Schema = new Schema.Parser().parse(
+      """
+        |{ "type": "record", "name": "t1", "fields": [ { "name": "f1", "type": "string" },
+        |{ "name": "f2", "type": "int" } ], "rowtime": "false" }
+        |""".stripMargin)
+    doReturn(Option(t1Schema)).when(zkExposerMock).get(tableName)
+
     implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(
-      kafkaPort = portKafka,
-      zooKeeperPort = portZookeeper
+      kafkaPort = 0,
+      zooKeeperPort = 0
     )
-    withRunningKafkaOnFoundPort(config) {
-      implicit config =>
-        new Thread {
-          override def run(): Unit = {
-            queryCommandMock.apply(Config(
-              queryConfig = QueryConfig(outTopic = "test"),
-              kafkaAddress = "localhost:" + portKafka,
-              zookeeperAddress = "localhost:" + portZookeeper)
-            )
-          }
-        }.start()
-        new Thread {
-          override def run(): Unit = {
-            getDataStreamRow(portKafka).addSink(new CollectRowSink())
-          }
-        }.start()
-        while (CollectRowSink.result.size < 3) {
-          Thread.sleep(100)
-        }
-        assert(CollectRowSink.result.asScala.map(_.getField(0).asInstanceOf[String]).toList
-          == List("title1", "title2", "title3"))
+
+    withRunningKafkaOnFoundPort(config) { implicit config =>
+      publishStringMessageToKafka(tableName, """{ "f1": "val1", "f2": 1 }""")
+      publishStringMessageToKafka(tableName, """{ "f1": "val2", "f2": 2 }""")
+      publishStringMessageToKafka(tableName, "")
+
+      val qc = new QueryCommand(
+        QueryConfig(timeout = 2, query = "select f1 from t1", checkEarliest = true),
+        zkExposerMock,
+        s"localhost:${config.kafkaPort}"
+      )
+      qc.ds.addSink(new CollectRowSink)
+
+      try {
+        qc.execute()
+      } catch {
+        case _: JobExecutionException =>
+      }
+
+      assertResult(CollectRowSink.values)(util.List.of(Row.of("val1"), Row.of("val2")))
     }
-  }
 
-  def getDataStreamRow(portKafka: Int): DataStream[Row] = {
-    val props: Properties = new Properties()
-    props.put("bootstrap.servers", "localhost:" + portKafka)
-    val cons = new FlinkKafkaConsumer[Row](
-      "test",
-      new DeserializationSchema[Row] {
-        override def deserialize(message: Array[Byte]): Row = Row.of(new String(message))
-
-        override def isEndOfStream(nextElement: Row): Boolean = false
-
-        override def getProducedType: TypeInformation[Row] = TypeInformation.of(classOf[Row])
-      },
-      props
-    )
-    cons.setStartFromEarliest()
-    env.addSource(cons)
   }
 
 }
+
+class CollectRowSink extends SinkFunction[Row] {
+  override def invoke(value: Row, context: SinkFunction.Context[_]): Unit = {
+    synchronized {
+    CollectRowSink.values.add(value)
+    }
+  }
+}
+
+object CollectRowSink {
+  val values: util.List[Row] = new util.ArrayList[Row]
+}
+

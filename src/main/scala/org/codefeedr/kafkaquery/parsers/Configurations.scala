@@ -45,6 +45,7 @@ object Configurations {
       outTopic: String = "",
       port: Int = -1,
       timeout: Int = -1,
+      timeoutFunc: () => Unit = () => System.exit(0),
       checkEarliest: Boolean = false,
       checkLatest: Boolean = false,
       pack: Boolean = false

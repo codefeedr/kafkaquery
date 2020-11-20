@@ -63,6 +63,7 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   var differentParsedSchema: Schema = _
 
   val subject = "testSubject"
+  val host = "localhost:2181"
 
   override def beforeAll(): Unit = {
     implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(zooKeeperPort = 2181)
@@ -74,7 +75,7 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   }
 
   before {
-    exposer = new ZookeeperSchemaExposer("localhost:2181")
+    exposer = new ZookeeperSchemaExposer(host)
 
     parsedSchema = exposer
       .parse(schema)
@@ -150,6 +151,10 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
     exposer.deleteAll()
     exposer.deleteAll()
     assert(exposer.get(subject).isEmpty)
+  }
+
+  test("Host getter returns correct result") {
+    assert(exposer.getHost == host)
   }
 
 }
