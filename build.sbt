@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.1.1"         % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.0",
-  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.1",
+  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.2",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
