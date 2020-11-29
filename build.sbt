@@ -49,7 +49,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-runtime"                  % flinkVersion      % Test classifier "tests",
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 
-  "com.github.scopt"          %% "scopt"                          % "3.7.1"
+  "com.github.scopt"          %% "scopt"                          % "4.0.0"
 )
 
 // make run command include the provided dependencies
