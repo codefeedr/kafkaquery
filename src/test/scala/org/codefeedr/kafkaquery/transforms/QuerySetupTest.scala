@@ -29,7 +29,9 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
     assertResult(
       s"CREATE TEMPORARY TABLE `t1` ((f1 INT, f2 STRING)) WITH ('connector.type' = 'kafka', " +
         s"'connector.version' = 'universal', 'connector.topic' = 't1', 'connector.properties.bootstrap.servers' " +
-        s"= 'localhost:9092', 'connector.startup-mode' = '$offsetText', 'format.type' = 'json', " +
+        s"= 'localhost:9092', 'connector.startup-mode' = '$offsetText', " +
+        "'connector.properties.default.api.timeout.ms' = '5000', " +
+        s"'format.type' = 'json', " +
         s"'format.fail-on-missing-field' = 'false')"
     )(
       QuerySetup.getTableCreationCommand(tableName, new java.lang.StringBuilder(tableFields), kafkaAddr,
