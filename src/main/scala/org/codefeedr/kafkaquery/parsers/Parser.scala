@@ -86,15 +86,6 @@ class Parser extends OptionParser[Config]("codefeedr") {
   opt[Unit]("topics")
     .action((_, c) => c.copy(mode = Mode.Topics))
     .text("List all topic names which have a schema stored in Zookeeper.")
-  opt[(String, String)]("schema-by-string")
-    .keyName("<topic_name>")
-    .valueName("<avro_Schema_String>")
-    .action({ case ((topicName, schema), c) =>
-      c.copy(mode = Mode.Schema, avroSchema = schema, topicName = topicName)
-    })
-    .text(
-      "Inserts the specified Avro Schema (as a String) into ZooKeeper for the specified topic"
-    )
   opt[(String, File)]("schema")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_file>")

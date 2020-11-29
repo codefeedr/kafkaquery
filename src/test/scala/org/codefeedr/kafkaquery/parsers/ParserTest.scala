@@ -119,16 +119,6 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
     }
   }
 
-  test("updateSchemaWithString") {
-    withRunningKafkaOnFoundPort(config) { implicit config =>
-      val zkAddress = s"localhost:${config.zooKeeperPort}"
-      val avroSchema = "{\"type\":\"record\",\"name\":\"Person\",\"namespace\":\"org.codefeedr.plugins.repl.org.codefeedr.kafkaquery.parsers.Parser.updateSchema\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"int\"},{\"name\":\"city\",\"type\":\"string\"}]}"
-      parser.parse(("--schema-by-string "+ subjectName +"=" + avroSchema + " --zookeeper "+zkAddress).split(" "))
-
-      assert(parser.getSchemaExposer.get(subjectName).get.toString.equals(avroSchema))
-    }
-  }
-
   test("updateSchemaParserFailure") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))

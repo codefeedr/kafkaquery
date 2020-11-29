@@ -41,6 +41,7 @@ object QuerySetup {
       "'connector.startup-mode' = '" +
       (if (checkLatest) "latest-offset" else "earliest-offset") +
       "', " +
+      "'connector.properties.default.api.timeout.ms' = '5000', " + //Todo create option for setting this value
       "'format.type' = 'json', " +
       "'format.fail-on-missing-field' = 'false'" +
       ")"

@@ -33,6 +33,10 @@ class KafkaRecordRetriever(
     "org.apache.kafka.common.serialization.StringDeserializer"
   )
   props.put("max.poll.records", "1")
+  props.put(
+    "default.api.timeout.ms",
+    "5000"
+  ) //Todo create option for setting this value
 
   private val kafkaConsumer = new KafkaConsumer[String, String](props)
 
