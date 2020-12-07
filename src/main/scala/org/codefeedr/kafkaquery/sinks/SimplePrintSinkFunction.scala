@@ -18,7 +18,7 @@ class SimplePrintSinkFunction[T](stdErr: Boolean = false)
     writer.open()
   }
 
-  override def invoke(value: T, context: SinkFunction.Context[_]): Unit =
+  override def invoke(value: T, context: SinkFunction.Context): Unit =
     writer.write(value)
 
 }

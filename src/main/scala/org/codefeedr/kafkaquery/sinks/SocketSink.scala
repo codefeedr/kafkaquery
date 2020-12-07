@@ -31,7 +31,7 @@ class SocketSink[T](port: Int) extends RichSinkFunction[T] {
     }
   }
 
-  override def invoke(value: T, context: SinkFunction.Context[_]): Unit = {
+  override def invoke(value: T, context: SinkFunction.Context): Unit = {
     val valueBytes = (value.toString + "\n").getBytes
 
     lock synchronized {

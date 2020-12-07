@@ -75,7 +75,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
 }
 
 class CollectRowSink extends SinkFunction[Row] {
-  override def invoke(value: Row, context: SinkFunction.Context[_]): Unit = {
+  override def invoke(value: Row, context: SinkFunction.Context): Unit = {
     synchronized {
     CollectRowSink.values.add(value)
     }
