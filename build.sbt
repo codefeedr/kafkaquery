@@ -15,7 +15,7 @@ scalacOptions ++= Seq(
 enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
-lazy val flinkVersion       = "1.11.2"
+lazy val flinkVersion       = "1.12.0"
 lazy val log4jVersion       = "2.14.0"
 lazy val scalatestVersion   = "3.2.3"
 
