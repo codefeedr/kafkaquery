@@ -15,7 +15,7 @@ scalacOptions ++= Seq(
 enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
-lazy val flinkVersion       = "1.11.2"
+lazy val flinkVersion       = "1.12.0"
 lazy val log4jVersion       = "2.14.0"
 lazy val scalatestVersion   = "3.2.3"
 
@@ -51,15 +51,3 @@ libraryDependencies ++= Seq(
 
   "com.github.scopt"          %% "scopt"                          % "4.0.0"
 )
-
-// make run command include the provided dependencies
-Compile / run  := Defaults.runTask(Compile / fullClasspath,
-  Compile / run / mainClass,
-  Compile / run / runner
-).evaluated
-
-// stays inside the sbt console when we press "ctrl-c" while a Flink programme executes with "run" or "runMain"
-Compile / run / fork := true
-Global / cancelable := true
-
-parallelExecution in Test := false

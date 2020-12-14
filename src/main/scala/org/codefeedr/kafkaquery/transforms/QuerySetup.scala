@@ -34,16 +34,18 @@ object QuerySetup {
   ): String = {
     "CREATE TEMPORARY TABLE `" + name + "` (" + tableFields + ") " +
       "WITH (" +
-      "'connector.type' = 'kafka', " +
-      "'connector.version' = 'universal', " +
-      "'connector.topic' = '" + name + "', " +
-      "'connector.properties.bootstrap.servers' = '" + kafkaAddr + "', " +
-      "'connector.startup-mode' = '" +
+      "'connector' = 'kafka', " +
+      "'topic' = '" + name + "', " +
+      "'properties.bootstrap.servers' = '" + kafkaAddr + "', " +
+      "'properties.group.id' = 'kq', " +
+      "'scan.startup.mode' = '" +
       (if (checkLatest) "latest-offset" else "earliest-offset") +
       "', " +
-      "'connector.properties.default.api.timeout.ms' = '5000', " + //Todo create option for setting this value
-      "'format.type' = 'json', " +
-      "'format.fail-on-missing-field' = 'false'" +
+      "'properties.default.api.timeout.ms' = '5000', " + // TODO create option for setting this value
+      "'format' = 'json', " +
+      "'json.timestamp-format.standard' = 'ISO-8601', " +
+      "'json.ignore-parse-errors' = 'true', " +
+      "'json.fail-on-missing-field' = 'false'" +
       ")"
   }
 
@@ -70,8 +72,7 @@ object QuerySetup {
       ) {
         rowtimeFound = true
         res.append(
-          fieldInfo._1 + " TIMESTAMP(3), WATERMARK FOR " + fieldInfo._1 +
-            " AS " + fieldInfo._1 + " - INTERVAL '0.001' SECOND, "
+          fieldInfo._1 + " TIMESTAMP(3) WITH LOCAL TIME ZONE, "
         )
       } else {
         res.append(fieldInfo._1 + " " + fieldInfo._2 + ", ")
@@ -79,7 +80,7 @@ object QuerySetup {
     }
 
     if (rowtimeEnabled && !rowtimeFound) {
-      res.append("`kafka_time` AS PROCTIME(), ")
+      res.append("`kafka_time` TIMESTAMP(3) METADATA FROM 'timestamp', ")
     }
 
     if (res.length() - 2 == res.lastIndexOf(", "))

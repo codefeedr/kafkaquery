@@ -1,7 +1,6 @@
 package org.codefeedr.kafkaquery.commands
 
 import org.apache.flink.api.java.functions.NullByteKeySelector
-import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.table.api.EnvironmentSettings
 import org.apache.flink.table.api.bridge.scala.{
@@ -33,7 +32,6 @@ class QueryCommand(
   val fsEnv: StreamExecutionEnvironment =
     StreamExecutionEnvironment.getExecutionEnvironment
 
-  fsEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
   fsEnv.getConfig.enableObjectReuse()
 
   val fsTableEnv: StreamTableEnvironment =
