@@ -93,7 +93,8 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .action({ case ((topicName, schema), c) =>
       c.copy(
         mode = Mode.Schema,
-        avroSchema = FileUtils.readFileToString(schema, Charset.defaultCharset()),
+        avroSchema =
+          FileUtils.readFileToString(schema, Charset.defaultCharset()),
         topicName = topicName
       )
     })
