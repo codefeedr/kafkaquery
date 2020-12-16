@@ -1,6 +1,7 @@
 package org.codefeedr.kafkaquery.parsers
 
 import java.io.File
+import java.nio.charset.Charset
 
 import org.apache.avro.Schema
 import org.apache.commons.io.FileUtils
@@ -92,7 +93,8 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .action({ case ((topicName, schema), c) =>
       c.copy(
         mode = Mode.Schema,
-        avroSchema = FileUtils.readFileToString(schema),
+        avroSchema =
+          FileUtils.readFileToString(schema, Charset.defaultCharset()),
         topicName = topicName
       )
     })

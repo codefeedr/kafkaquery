@@ -24,8 +24,8 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime,
   "org.apache.logging.log4j"  %% "log4j-api-scala"                % "12.0",
 
-  "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided,
-  "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided,
+  "org.apache.flink"          %% "flink-scala"                    % flinkVersion,
+  "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion,
   "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion,
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
 
@@ -41,7 +41,7 @@ libraryDependencies ++= Seq(
   "org.apache.avro"            % "avro"                           % "1.10.1",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.3",
 
-  "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion      % Provided,
+  "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
   "org.apache.flink"           % "flink-json"                     % flinkVersion,
 
@@ -51,3 +51,6 @@ libraryDependencies ++= Seq(
 
   "com.github.scopt"          %% "scopt"                          % "4.0.0"
 )
+
+// Fork all tasks
+fork := true

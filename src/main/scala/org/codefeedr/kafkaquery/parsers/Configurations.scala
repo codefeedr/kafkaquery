@@ -35,6 +35,7 @@ object Configurations {
     * @param port        socket port number
     * @param timeout     timeout before query prints results
     * @param checkLatest check if the query output should be printed from latest
+    * @param ignoreParseErr ignore JSON parse errors during deserialization
     * @param pack        generate JAR which can be deployed to Flink cluster
     */
   case class QueryConfig(
@@ -45,6 +46,7 @@ object Configurations {
       timeoutFunc: () => Unit = () => System.exit(0),
       checkEarliest: Boolean = false,
       checkLatest: Boolean = false,
+      ignoreParseErr: Boolean = true,
       pack: Boolean = false
   )
 }

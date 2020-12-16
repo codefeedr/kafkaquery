@@ -1,14 +1,10 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.io.InputStream
-
 import org.apache.avro.Schema
 import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2, TableFor3}
-
-import scala.io.StdIn
 
 class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks with MockitoSugar {
 
