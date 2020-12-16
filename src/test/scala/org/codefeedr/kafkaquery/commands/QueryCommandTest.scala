@@ -1,6 +1,7 @@
 package org.codefeedr.kafkaquery.commands
 
 import java.util
+import java.util.Collections
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
@@ -55,7 +56,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
       publishStringMessageToKafka(tableName, "")
 
       val qc = new QueryCommand(
-        QueryConfig(timeout = 2, query = "select f1 from t1", checkEarliest = true),
+        QueryConfig(timeout = 2, query = "select f1 from t1", checkEarliest = true, ignoreParseErr = false, timeoutFunc = () => ()),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
@@ -67,7 +68,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
         case _: JobExecutionException =>
       }
 
-      assertResult(CollectRowSink.values)(util.List.of(Row.of("val1"), Row.of("val2")))
+      assertResult(util.List.of(Row.of("val1"), Row.of("val2")))(CollectRowSink.values)
     }
 
   }
@@ -76,13 +77,10 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
 
 class CollectRowSink extends SinkFunction[Row] {
   override def invoke(value: Row, context: SinkFunction.Context): Unit = {
-    synchronized {
     CollectRowSink.values.add(value)
-    }
   }
 }
 
 object CollectRowSink {
-  val values: util.List[Row] = new util.ArrayList[Row]
+  val values: util.List[Row] = Collections.synchronizedList(new util.ArrayList())
 }
-

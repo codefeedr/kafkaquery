@@ -24,13 +24,15 @@ object QuerySetup {
     * @param tableFields DDL StringBuilder of the table fields
     * @param kafkaAddr Kafka server address
     * @param checkLatest record retrieval strategy (from LATEST or EARLIEST)
+    * @param ignoreParseErr JSON ignore parse errors property
     * @return temporary table DDL string
     */
   def getTableCreationCommand(
       name: String,
       tableFields: java.lang.StringBuilder,
       kafkaAddr: String,
-      checkLatest: Boolean
+      checkLatest: Boolean,
+      ignoreParseErr: Boolean
   ): String = {
     "CREATE TEMPORARY TABLE `" + name + "` (" + tableFields + ") " +
       "WITH (" +
@@ -39,12 +41,12 @@ object QuerySetup {
       "'properties.bootstrap.servers' = '" + kafkaAddr + "', " +
       "'properties.group.id' = 'kq', " +
       "'scan.startup.mode' = '" +
-      (if (checkLatest) "latest-offset" else "earliest-offset") +
-      "', " +
+      (if (checkLatest) "latest-offset" else "earliest-offset") + "', " +
       "'properties.default.api.timeout.ms' = '5000', " + // TODO create option for setting this value
       "'format' = 'json', " +
       "'json.timestamp-format.standard' = 'ISO-8601', " +
-      "'json.ignore-parse-errors' = 'true', " +
+      "'json.ignore-parse-errors' = '" +
+      (if (ignoreParseErr) "true" else "false") + "', " +
       "'json.fail-on-missing-field' = 'false'" +
       ")"
   }

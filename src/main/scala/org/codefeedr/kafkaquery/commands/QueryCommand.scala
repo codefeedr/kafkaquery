@@ -52,7 +52,8 @@ class QueryCommand(
         topicName,
         QuerySetup.generateTableSchema(result.get, getNestedSchema),
         kafkaAddr,
-        qConfig.checkLatest
+        qConfig.checkLatest,
+        qConfig.ignoreParseErr
       )
 
       fsTableEnv.executeSql(ddlString)

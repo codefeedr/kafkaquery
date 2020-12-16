@@ -35,7 +35,7 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
         "'json.fail-on-missing-field' = 'false')"
     )(
       QuerySetup.getTableCreationCommand(tableName, new java.lang.StringBuilder(tableFields), kafkaAddr,
-        checkLatest = checkLatest)
+        checkLatest = checkLatest, ignoreParseErr = true)
     )
   }
 

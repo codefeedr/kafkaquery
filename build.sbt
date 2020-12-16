@@ -51,3 +51,6 @@ libraryDependencies ++= Seq(
 
   "com.github.scopt"          %% "scopt"                          % "4.0.0"
 )
+
+// Fork all tasks
+fork := true
