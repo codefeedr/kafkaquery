@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion,
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
 
-  "org.apache.kafka"           % "kafka-clients"                  % "2.4.1",
+  "org.apache.kafka"           % "kafka-clients"                  % "2.7.0",
   "org.apache.zookeeper"       % "zookeeper"                      % "3.4.14",
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
