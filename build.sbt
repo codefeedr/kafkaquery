@@ -29,7 +29,6 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion,
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
 
-  "org.apache.kafka"           % "kafka-clients"                  % "2.4.1",
   "org.apache.zookeeper"       % "zookeeper"                      % "3.6.2",
   "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.16"          % Test,
 
