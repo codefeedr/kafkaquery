@@ -38,6 +38,7 @@ libraryDependencies ++= Seq(
 
   "org.apache.kafka"           % "kafka-clients"                  % "2.4.1",
   "org.apache.zookeeper"       % "zookeeper"                      % "3.6.2",
+  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.16"          % Test,
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
