@@ -73,7 +73,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
         else success
       ),
       checkConfig(c =>
-        if (!c.queryConfig.outTopic.isEmpty && c.queryConfig.port != -1)
+        if (c.queryConfig.outTopic.nonEmpty && c.queryConfig.port != -1)
           failure("Cannot write query output to both kafka-topic and port.")
         else success
       )

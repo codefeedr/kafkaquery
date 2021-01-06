@@ -15,6 +15,9 @@ public class StreamEnvironmentConfigHelper {
 
     public static Configuration getConfig(URLClassLoader functionClassloader) {
         Configuration effectiveConfiguration = new Configuration();
+
+        effectiveConfiguration.set(PipelineOptions.OBJECT_REUSE, true);
+
         effectiveConfiguration.set(DeploymentOptions.TARGET, "local");
         effectiveConfiguration.set(DeploymentOptions.ATTACHED, true);
         ConfigUtils.encodeCollectionToConfig(
