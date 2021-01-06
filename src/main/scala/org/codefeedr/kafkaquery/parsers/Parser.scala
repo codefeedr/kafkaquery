@@ -116,6 +116,19 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .valueName("<ZK-address>")
     .action((address, config) => config.copy(zookeeperAddress = address))
     .text("Sets the ZooKeeper address.")
+  opt[(String, File)]("udf")
+    .keyName("<function_name>")
+    .valueName("<java_file>")
+    .action({ case ((functionName, udf), c) =>
+      c.copy(
+        queryConfig = c.queryConfig.copy(userFunctions =
+          (functionName, udf) :: c.queryConfig.userFunctions
+        )
+      )
+    })
+    .text(
+      "Registers the specified User defined function with the specified name at the FlinkTableEnvironment."
+    )
   help('h', "help")
 
   private var zookeeperExposer: ZookeeperSchemaExposer = _

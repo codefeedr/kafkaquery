@@ -2,6 +2,8 @@ package org.codefeedr.kafkaquery.parsers
 
 import org.codefeedr.kafkaquery.parsers.Configurations.Mode.Mode
 
+import java.io.File
+
 object Configurations {
 
   /** Config which contains all the copied the arguments from the CLI
@@ -47,6 +49,7 @@ object Configurations {
       checkEarliest: Boolean = false,
       checkLatest: Boolean = false,
       ignoreParseErr: Boolean = true,
-      pack: Boolean = false
+      pack: Boolean = false,
+      userFunctions: List[(String, File)] = List[(String, File)]()
   )
 }
