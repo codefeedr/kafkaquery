@@ -116,13 +116,12 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .valueName("<ZK-address>")
     .action((address, config) => config.copy(zookeeperAddress = address))
     .text("Sets the ZooKeeper address.")
-  opt[(String, File)]("udf")
-    .keyName("<function_name>")
-    .valueName("<java_file>")
-    .action({ case ((functionName, udf), c) =>
+  opt[Seq[(String, File)]]("udf")
+    .valueName("function_name1=java_file1,function_name2=java_file2...")
+    .action({ case (sequence, c) =>
       c.copy(
         queryConfig = c.queryConfig.copy(userFunctions =
-          (functionName, udf) :: c.queryConfig.userFunctions
+          sequence.toList
         )
       )
     })
