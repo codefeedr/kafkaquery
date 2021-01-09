@@ -34,11 +34,13 @@ class QueryCommand(
 
   private var classLoaderBuilder = withRoot(new File("custom"))
 
-  qConfig.userFunctions.foreach { case (name, file) =>
-    val fileContents = Source.fromFile(file.getAbsoluteFile)
-    classLoaderBuilder =
-      classLoaderBuilder.addClass(name, fileContents.mkString)
-    fileContents.close()
+  qConfig.userFunctions.foreach {
+    case (name, file) => {
+      val fileContents = Source.fromFile(file.getAbsoluteFile)
+      classLoaderBuilder =
+        classLoaderBuilder.addClass(name, fileContents.mkString)
+      fileContents.close()
+    }
   }
 
   private val functionClassLoader = classLoaderBuilder.build()
@@ -59,7 +61,7 @@ class QueryCommand(
   val fsTableEnv: StreamTableEnvironment =
     StreamTableEnvironment.create(fsEnv, fsSettings)
 
-  qConfig.userFunctions.foreach { case (name, _) =>
+  qConfig.userFunctions.foreach { case (name, file) =>
     // TODO try parent of ScalarFunction
     val func =
       functionClassLoader.loadClass(name).asInstanceOf[Class[ScalarFunction]]

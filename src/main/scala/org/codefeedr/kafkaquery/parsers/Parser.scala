@@ -15,6 +15,8 @@ import org.codefeedr.kafkaquery.util.{
 }
 import scopt.OptionParser
 
+import scala.io.Source
+
 class Parser extends OptionParser[Config]("codefeedr") {
 
   head("Codefeedr CLI", "1.0.0")
@@ -116,13 +118,12 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .valueName("<ZK-address>")
     .action((address, config) => config.copy(zookeeperAddress = address))
     .text("Sets the ZooKeeper address.")
-  opt[Seq[(String, File)]]("udf")
-    .valueName("function_name1=java_file1,function_name2=java_file2...")
+  opt[Seq[File]]("udf")
+    .valueName("function_file1,function_file2...")
     .action({ case (sequence, c) =>
       c.copy(
-        queryConfig = c.queryConfig.copy(userFunctions =
-          sequence.toList
-        )
+        queryConfig =
+          c.queryConfig.copy(userFunctions = getClassNameList(sequence.toList))
       )
     })
     .text(
@@ -229,7 +230,8 @@ class Parser extends OptionParser[Config]("codefeedr") {
   }
 
   /** Executes the steps required for infering a schema.
-    * @param topicName name of the topic to be inferred
+    *
+    * @param topicName    name of the topic to be inferred
     * @param kafkaAddress address of the kafka instance where the topic is present
     */
   def inferSchema(topicName: String, kafkaAddress: String): Unit = {
@@ -239,6 +241,27 @@ class Parser extends OptionParser[Config]("codefeedr") {
     )
 
     updateSchema(topicName, schema.toString)
+  }
+
+  def getClassNameList(classes: List[File]): List[(String, File)] = {
+    classes.map(file => {
+      (extractClassNameFromFile(file), file)
+    })
+  }
+
+  def extractClassNameFromFile(file: File): String = {
+    var last = ""
+    val fileContents = Source.fromFile(file.getAbsoluteFile)
+    fileContents.mkString
+      .split(" ")
+      .foreach(x => {
+        if (last.equalsIgnoreCase("class")) {
+          return x
+        }
+        last = x
+      })
+    fileContents.close()
+    throw new RuntimeException("Not a valid class" + file.getName)
   }
 
 }
