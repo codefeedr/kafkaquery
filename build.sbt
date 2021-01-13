@@ -16,6 +16,7 @@ enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
 lazy val flinkVersion       = "1.12.0"
+lazy val kafkaVersion       = "2.7.0"
 lazy val log4jVersion       = "2.14.0"
 lazy val scalatestVersion   = "3.2.3"
 
@@ -36,7 +37,8 @@ libraryDependencies ++= Seq(
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
   "org.mockito"               %% "mockito-scala"                  % "1.16.15"         % Test,
 
-  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.7.0"         % Test,
+  "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
+  "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.1",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4",
@@ -54,3 +56,6 @@ libraryDependencies ++= Seq(
 
 // Fork all tasks
 fork := true
+
+import xerial.sbt.pack.PackPlugin._
+publishPackArchiveTgz
