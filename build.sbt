@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
 
   "org.apache.zookeeper"       % "zookeeper"                      % "3.6.2",
-  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.16"          % Test,
+  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.17"          % Test,
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
