@@ -20,8 +20,7 @@ script:
 
 after_success:
   - sbt coverageReport coveralls
-  - sbt 'set version := "$TRAVIS_TAG"'
-  - sbt packArchive
+  - sbt "set version := \"$TRAVIS_TAG\"" packArchive
 
 deploy:
   provider: releases
