@@ -20,12 +20,17 @@ script:
 
 after_success:
   - sbt coverageReport coveralls
-  - sbt "set version := \"$TRAVIS_TAG\"" packArchive
+  - |
+    if [ ! -z $TRAVIS_TAG ]; then
+      sbt "set version := \"$TRAVIS_TAG\"" packArchive
+    fi
 
 deploy:
   provider: releases
   api_key: $API_KEY
-  file: "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.tar.gz"
+  file:
+    - "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.tar.gz"
+    - "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.zip"
   skip_cleanup: true
   on:
     tags: true
