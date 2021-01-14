@@ -15,19 +15,19 @@ cache:
     - $HOME/.sbt
 
 script:
-  - echo $TRAVIS_SCALA_VERSION
   - sbt clean coverage test
   - sbt scalafmtCheck
 
 after_success:
   - sbt coverageReport coveralls
-  - echo $TRAVIS_TAG
   - sbt set version := $TRAVIS_TAG
+  - sbt packArchive
 
 deploy:
   provider: releases
   api_key:
     secure: $ENCRYPTED_API_KEY
+  file: "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.tar.gz"
   skip_cleanup: true
   on:
     tags: true

@@ -54,6 +54,3 @@ libraryDependencies ++= Seq(
 
 // Fork all tasks
 fork := true
-
-import xerial.sbt.pack.PackPlugin._
-publishPackArchiveTgz
