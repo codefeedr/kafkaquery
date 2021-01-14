@@ -15,8 +15,11 @@ cache:
     - $HOME/.sbt
 
 script:
+  - echo $TRAVIS_SCALA_VERSION
   - sbt clean coverage test
   - sbt scalafmtCheck
 
 after_success:
   - sbt coverageReport coveralls
+  - echo $TRAVIS_TAG
+  - sbt set version := $TRAVIS_TAG
