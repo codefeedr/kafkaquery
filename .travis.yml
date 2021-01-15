@@ -27,7 +27,8 @@ after_success:
 
 deploy:
   provider: releases
-  api_key: $API_KEY
+  api_key:
+    secure: "CK5L8+M9mE+V083UU+GZ8fcieG7Cwq/ksk+P99V1MLJRiJcm+jFPJMx5TVBuhCW2jFIf4XlnLzpmpJtERIOPEo+oi7RprAzz8kbAKFc/MNfrVrAXolpY29jx8O7kW76BigiVQ7VtpXC37Thqg4TAcZ6dh9ltg33iUX3CHHu2sFq79wiNmFQ5Yj19kqoCnMX+FB7aOtpgYz6FuKCASXIXM4K/O621Qtofll/qJyls0vqK/83Fm8g4OFt8CaW8Ky7HLgorMnTZe6sqhPTTETAhYkUJVZ+R27CpsqIfzEle3+mV5zibjOdqFrn3OYLMRoyX2HBAXPDdT87kDw/K0x6t7EdMd4nJXwA2okZP+aN5RfuXBuN/raGJMpP9D1EhcmK9G7a1aS806Fk19qx058R5ug1BDOHoVR1LqCHeWIDrHDNrwB1Vv22RzYbMp3JlqJy3Ep3fxZ1qZlXMwOW8yG5tL/oZMxkoWIAWz2+IblGtazgec48/Mdm9qndN3Hv1FXWMkoCFTZWYzFqLBAHXUqgzx0KIsK8Kwn8tFhmwuIyBbk9sAt5+mi9tH4dZPLUC3dwdT/36sLimFhmfNHnidNaBr4UsInqk+/QHNkYK+cWNdW2as6VTLHImK91pTo8+xH1371N2FuHb9OLLI3xJWV0ONcuQ/CaY7rmKknFWdevfYjM="
   file:
     - "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.tar.gz"
     - "$TRAVIS_BUILD_DIR/target/kafkaquery-$TRAVIS_TAG.zip"
