@@ -44,8 +44,7 @@ class TimeOutFunction( // delay after which an alert flag is thrown
     val currentTime = ctx.timerService.currentProcessingTime
     val timeoutTime = currentTime + timeOut
 
-
-    if(isTimerRunning.value()) { //if a timer is running already, update the offset
+    if (isTimerRunning.value()) { //if a timer is running already, update the offset
       timerOffset.update(lastTimer.value() - currentTime);
     } else { //if no timer is running create new Timer
       ctx.timerService.registerProcessingTimeTimer(timeoutTime)
@@ -71,7 +70,9 @@ class TimeOutFunction( // delay after which an alert flag is thrown
       func()
     } else { //Timer expired but elements were processed while timer was running -> create new timer with corresponding offset
       val currentTime = ctx.timerService.currentProcessingTime
-      val timeoutTime = currentTime + timeOut - timerOffset.value() //A fresh timer that ends when: latest element time + timeout is reached
+      val timeoutTime =
+        currentTime + timeOut - timerOffset
+          .value() //A fresh timer that ends when: latest element time + timeout is reached
       ctx.timerService.registerProcessingTimeTimer(timeoutTime)
 
       //set last timer to our new one
