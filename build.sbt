@@ -1,7 +1,5 @@
 name := "kafkaquery"
 
-version := "0.1"
-
 scalaVersion := "2.12.12"
 
 scalacOptions ++= Seq(
@@ -16,6 +14,7 @@ enablePlugins(PackPlugin)
 packMain := Map("codefeedr" -> "org.codefeedr.kafkaquery.CLI")
 
 lazy val flinkVersion       = "1.12.0"
+lazy val kafkaVersion       = "2.7.0"
 lazy val log4jVersion       = "2.14.0"
 lazy val scalatestVersion   = "3.2.3"
 
@@ -31,13 +30,14 @@ libraryDependencies ++= Seq(
   "org.apache.flink"           % "flink-core"                     % flinkVersion      classifier "tests",
 
   "org.apache.zookeeper"       % "zookeeper"                      % "3.6.2",
-  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.16"          % Test,
+  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.17"          % Test,
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
-  "org.mockito"               %% "mockito-scala"                  % "1.16.13"         % Test,
+  "org.mockito"               %% "mockito-scala"                  % "1.16.15"         % Test,
 
-  "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.7.0"         % Test,
+  "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
+  "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.1",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4",
