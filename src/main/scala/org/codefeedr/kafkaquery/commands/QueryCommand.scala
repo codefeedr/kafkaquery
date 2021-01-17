@@ -19,7 +19,7 @@ import org.codefeedr.kafkaquery.transforms.{
   TimeOutFunction
 }
 import org.codefeedr.kafkaquery.util.{
-  StreamEnvironmentConfigHelper,
+  StreamEnvConfigurator,
   ZookeeperSchemaExposer
 }
 
@@ -34,13 +34,11 @@ class QueryCommand(
 
   private var classLoaderBuilder = withRoot(new File("custom"))
 
-  qConfig.userFunctions.foreach {
-    case (name, file) => {
-      val fileContents = Source.fromFile(file.getAbsoluteFile)
-      classLoaderBuilder =
-        classLoaderBuilder.addClass(name, fileContents.mkString)
-      fileContents.close()
-    }
+  qConfig.userFunctions.foreach { case (name, file) =>
+    val fileContents = Source.fromFile(file.getAbsoluteFile)
+    classLoaderBuilder =
+      classLoaderBuilder.addClass(name, fileContents.mkString)
+    fileContents.close()
   }
 
   private val functionClassLoader = classLoaderBuilder.build()
@@ -55,7 +53,7 @@ class QueryCommand(
   val fsEnv: StreamExecutionEnvironment =
     StreamExecutionEnvironment.createLocalEnvironment(
       StreamExecutionEnvironment.getDefaultLocalParallelism,
-      StreamEnvironmentConfigHelper.getConfig(functionClassLoader)
+      StreamEnvConfigurator.withClassLoader(functionClassLoader)
     )
 
   val fsTableEnv: StreamTableEnvironment =
