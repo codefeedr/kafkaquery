@@ -6,9 +6,7 @@ import java.util.Collections
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
 import org.apache.flink.runtime.client.JobExecutionException
-import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.test.util.MiniClusterWithClientResource
 import org.apache.flink.types.Row
 import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
 import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
@@ -17,19 +15,6 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
 class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka with MockitoSugar {
-
-  val flinkCluster = new MiniClusterWithClientResource(new MiniClusterResourceConfiguration.Builder()
-    .setNumberSlotsPerTaskManager(1)
-    .setNumberTaskManagers(1)
-    .build)
-
-  before {
-    flinkCluster.before()
-  }
-
-  after {
-    flinkCluster.after()
-  }
 
   test ("Query should run and produce expected results") {
     CollectRowSink.values.clear()
