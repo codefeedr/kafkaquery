@@ -39,7 +39,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
           s"Writes the output data of the given query to a socket which gets created with the specified port. " +
             s"Local connection with the host can be done by e.g. netcat."
         ),
-      opt[String]('k', "kafka-topic")
+      opt[String]('k', "kafka_topic")
         .valueName("<kafka-topic>")
         .action((x, c) =>
           c.copy(queryConfig = c.queryConfig.copy(outTopic = x))
@@ -104,22 +104,22 @@ class Parser extends OptionParser[Config]("codefeedr") {
       "Updates the schema for the specified topic with the given Avro schema (as a file)."
     )
   opt[String]("infer-schema")
-    .valueName("<topic-name>")
+    .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Infer, topicName = x))
     .text(
       "Infers and registers an Avro schema for the specified topic."
     )
   opt[String]("kafka")
-    .valueName("<kafka-address>")
+    .valueName("<Kafka_address>")
     .action((address, config) => config.copy(kafkaAddress = address))
     .text("Sets the Kafka address for the execution.")
 
   opt[String]("zookeeper")
-    .valueName("<ZK-address>")
+    .valueName("<ZK_address>")
     .action((address, config) => config.copy(zookeeperAddress = address))
     .text("Sets the ZooKeeper address for the execution.")
   opt[Seq[File]]("udf")
-    .valueName("function_file1,function_file2...")
+    .valueName("<function_file1,function_file2...>")
     .action({ case (sequence, c) =>
       c.copy(
         queryConfig =
@@ -241,6 +241,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     )
 
     updateSchema(topicName, schema.toString)
+    println("Successfully generated schema for topic " + topicName)
   }
 
   def getClassNameList(classes: List[File]): List[(String, File)] = {

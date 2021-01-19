@@ -4,14 +4,31 @@ CodeFeedr KafkaQuery allows to operate on JSON data in a Kafka instance using [F
 
 ## Getting Started
 
-Run ```sbt pack``` to create a package folder which includes program launch scripts in the following directory: ```target/pack/bin/kafkaquery```
+Download the latest KafkaQuery release [here](https://github.com/codefeedr/kafkaquery/releases) and extract its content. 
 
-Add CodeFeedr to you path:
+<details> 
+<summary>Alternatively build KafkaQuery yourself</summary>
+<br>
+
+Clone the project and open it as a sbt project. Run `sbt pack` to create a package folder containing program launch scripts in the following directory: ```target/pack/bin/kafkaquery/bin```
+
+
+</details>
+
+<details> 
+<summary>Optional: Add CodeFeedr to you path</summary>
+
+
 ```
 export PATH=$PATH:<path to bin folder>
 
 e.g. export PATH=$PATH:/Users/MyUsername/Documents/kafkaquery/target/pack/bin
 ```
+
+</details>
+
+
+
 
 Specify Kafka and Zookeeper addresses either in your environment variables or as [arguments](#address)  when executing the launch script.<br/>
 
@@ -23,7 +40,7 @@ Specify Kafka and Zookeeper addresses either in your environment variables or as
 
 ## Usage
 
-Execute the codefeedr script which can be found here ```kafkaquery/target/pack/bin```
+For any usage of KafkaQuery the `codefeedr` script needs to be executed. It can be found in the `bin` folder.
 
 In the following examples Kafka and Zookeeper instances are running on the default addresses. <br>
 To pause examples and mark & copy commands within them click on the examples to get redirected to the respective [Asciinema](https://asciinema.org/) page.
