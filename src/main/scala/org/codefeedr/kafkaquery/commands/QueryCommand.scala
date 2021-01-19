@@ -1,6 +1,8 @@
 package org.codefeedr.kafkaquery.commands
 
 import org.apache.flink.api.java.functions.NullByteKeySelector
+import org.apache.flink.configuration.{Configuration, TaskManagerOptions}
+import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.table.api.EnvironmentSettings
 import org.apache.flink.table.api.bridge.scala.{
@@ -20,7 +22,8 @@ import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
 class QueryCommand(
     qConfig: QueryConfig,
     zkExposer: ZookeeperSchemaExposer,
-    kafkaAddr: String
+    kafkaAddr: String,
+    config: Configuration = new Configuration()
 ) {
 
   val fsSettings: EnvironmentSettings = EnvironmentSettings
@@ -30,7 +33,10 @@ class QueryCommand(
     .build()
 
   val fsEnv: StreamExecutionEnvironment =
-    StreamExecutionEnvironment.getExecutionEnvironment
+    StreamExecutionEnvironment.createLocalEnvironment(
+      StreamExecutionEnvironment.getDefaultLocalParallelism,
+      config
+    )
 
   fsEnv.getConfig.enableObjectReuse()
 
@@ -38,11 +44,9 @@ class QueryCommand(
     StreamTableEnvironment.create(fsEnv, fsSettings)
 
   private val supportedFormats = zkExposer.getAllChildren
-  println("Supported Plugins: " + supportedFormats)
 
   private val requestedTopics =
     QuerySetup.extractTopics(qConfig.query, supportedFormats)
-  println("Requested: " + requestedTopics)
 
   for (topicName <- requestedTopics) {
     val result = zkExposer.get(topicName)
@@ -70,6 +74,28 @@ class QueryCommand(
   }
   QueryOutput.selectOutput(ds, qConfig, kafkaAddr)
 
-  def execute(): Unit = fsEnv.execute()
+  def execute(): Unit = {
+    try {
+      fsEnv.execute()
+    } catch {
+      case e: JobExecutionException =>
+        var rootCause = e.getCause
+        while (rootCause.getCause != null) {
+          rootCause = rootCause.getCause
+        }
+
+        rootCause.getLocalizedMessage match {
+          case s if s.matches("Insufficient number of network buffers.*") =>
+            val newMemAmount =
+              config.get(TaskManagerOptions.NETWORK_MEMORY_MIN).multiply(2)
+            config.set(TaskManagerOptions.NETWORK_MEMORY_MIN, newMemAmount)
+            config.set(TaskManagerOptions.NETWORK_MEMORY_MAX, newMemAmount)
+
+            new QueryCommand(qConfig, zkExposer, kafkaAddr, config).execute()
+
+          case _ => e.printStackTrace()
+        }
+    }
+  }
 
 }
