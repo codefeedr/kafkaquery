@@ -22,8 +22,10 @@ import org.codefeedr.kafkaquery.util.{
   StreamEnvConfigurator,
   ZookeeperSchemaExposer
 }
-
 import java.io.File
+
+import org.apache.commons.io.FileUtils
+
 import scala.io.Source
 
 class QueryCommand(
@@ -31,8 +33,9 @@ class QueryCommand(
     zkExposer: ZookeeperSchemaExposer,
     kafkaAddr: String
 ) {
-
-  private var classLoaderBuilder = withRoot(new File("custom"))
+  private val root = new File("custom")
+  root.deleteOnExit()
+  private var classLoaderBuilder = withRoot(root)
 
   qConfig.userFunctions.foreach { case (name, file) =>
     val fileContents = Source.fromFile(file.getAbsoluteFile)
@@ -43,6 +46,9 @@ class QueryCommand(
 
   private val functionClassLoader = classLoaderBuilder.build()
   TemporaryClassLoaderContext.of(functionClassLoader)
+
+  //Mark every temporary udf for deletion
+  root.list().foreach(udfName => new File(root.getAbsolutePath+"/"+udfName).deleteOnExit())
 
   val fsSettings: EnvironmentSettings = EnvironmentSettings
     .newInstance()
@@ -67,11 +73,9 @@ class QueryCommand(
   }
 
   private val supportedFormats = zkExposer.getAllChildren
-  println("Supported Plugins: " + supportedFormats)
 
   private val requestedTopics =
     QuerySetup.extractTopics(qConfig.query, supportedFormats)
-  println("Requested: " + requestedTopics)
 
   for (topicName <- requestedTopics) {
     val result = zkExposer.get(topicName)
