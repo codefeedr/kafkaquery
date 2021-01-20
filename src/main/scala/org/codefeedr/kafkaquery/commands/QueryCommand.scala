@@ -24,8 +24,6 @@ import org.codefeedr.kafkaquery.util.{
 }
 import java.io.File
 
-import org.apache.commons.io.FileUtils
-
 import scala.io.Source
 
 class QueryCommand(
@@ -48,11 +46,14 @@ class QueryCommand(
   TemporaryClassLoaderContext.of(functionClassLoader)
 
   //Mark every temporary udf for deletion
-  root
-    .list()
-    .foreach(udfName =>
-      new File(root.getAbsolutePath + "/" + udfName).deleteOnExit()
-    )
+  private val rootList = root.list()
+  if (rootList != null) {
+    root
+      .list()
+      .foreach(udfName =>
+        new File(root.getAbsolutePath + "/" + udfName).deleteOnExit()
+      )
+  }
 
   val fsSettings: EnvironmentSettings = EnvironmentSettings
     .newInstance()
@@ -69,7 +70,7 @@ class QueryCommand(
   val fsTableEnv: StreamTableEnvironment =
     StreamTableEnvironment.create(fsEnv, fsSettings)
 
-  qConfig.userFunctions.foreach { case (name, file) =>
+  qConfig.userFunctions.foreach { case (name, _) =>
     // TODO try parent of ScalarFunction
     val func =
       functionClassLoader.loadClass(name).asInstanceOf[Class[ScalarFunction]]

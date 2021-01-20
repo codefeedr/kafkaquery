@@ -93,7 +93,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
           |    public String eval(String input) {
           |        return input + " : udf invoked";
           |    }
-          |}""".stripMargin); close}
+          |}""".stripMargin); close()}
 
       val udfFile = new File(udfName)
       udfFile.deleteOnExit()
