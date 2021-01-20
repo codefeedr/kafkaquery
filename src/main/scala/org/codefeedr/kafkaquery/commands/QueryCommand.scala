@@ -48,7 +48,11 @@ class QueryCommand(
   TemporaryClassLoaderContext.of(functionClassLoader)
 
   //Mark every temporary udf for deletion
-  root.list().foreach(udfName => new File(root.getAbsolutePath+"/"+udfName).deleteOnExit())
+  root
+    .list()
+    .foreach(udfName =>
+      new File(root.getAbsolutePath + "/" + udfName).deleteOnExit()
+    )
 
   val fsSettings: EnvironmentSettings = EnvironmentSettings
     .newInstance()
