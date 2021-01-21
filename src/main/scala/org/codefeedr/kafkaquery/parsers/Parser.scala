@@ -15,6 +15,8 @@ import org.codefeedr.kafkaquery.util.{
 }
 import scopt.OptionParser
 
+import scala.io.Source
+
 class Parser extends OptionParser[Config]("codefeedr") {
 
   head("Codefeedr CLI", "1.0.0")
@@ -27,7 +29,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .text(
       s"Allows querying available data sources through Flink SQL. " +
         s"query - valid Flink SQL query. More information about Flink SQL can be found at: https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html. " +
-        s"Tables and their fields share the same names as those specified for the stage."
+        s""
     )
     .children(
       opt[Int]('p', "port")
@@ -35,37 +37,37 @@ class Parser extends OptionParser[Config]("codefeedr") {
         .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(port = x)))
         .text(
           s"Writes the output data of the given query to a socket which gets created with the specified port. " +
-            s"Local connection with the host can be either done with netcat or by setting up your own socket client."
+            s"Local connection with the host can be done by e.g. netcat."
         ),
-      opt[String]('k', "kafka-topic")
+      opt[String]('k', "kafka_topic")
         .valueName("<kafka-topic>")
         .action((x, c) =>
           c.copy(queryConfig = c.queryConfig.copy(outTopic = x))
         )
         .text(
           s"Writes the output data of the given query to the specified Kafka topic. " +
-            s"If the Kafka topic does not exist, it will be created. The written query results can be seen by consuming from the Kafka topic."
+            s"If the Kafka topic does not exist, it will be created."
         ),
       opt[Int]('t', "timeout")
         .valueName("<seconds>")
         .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(timeout = x)))
         .text(
-          s"Specify a timeout in seconds. Query results will only be printed within this amount of time specified."
+          s"Specifies a timeout in seconds. If no message is received for the duration of the timeout the program terminates."
         ),
       opt[Unit]("from-earliest")
         .action((_, c) =>
           c.copy(queryConfig = c.queryConfig.copy(checkEarliest = true))
         )
         .text(
-          s"Specify that the query output should be printed starting from the first retrievals." +
-            s"If no state is specified, then the query results will be printed from EARLIEST."
+          s"Specifies that the data is consumed from the earliest offset." +
+            s"If no state is specified the query results will be printed from EARLIEST."
         ),
       opt[Unit]("from-latest")
         .action((_, c) =>
           c.copy(queryConfig = c.queryConfig.copy(checkLatest = true))
         )
         .text(
-          s"Specify that the query output should be printed starting from the latest retrievals."
+          s"Specifies that the data is consumed from the latest offset."
         ),
       checkConfig(c =>
         if (c.queryConfig.checkEarliest && c.queryConfig.checkLatest)
@@ -73,7 +75,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
         else success
       ),
       checkConfig(c =>
-        if (!c.queryConfig.outTopic.isEmpty && c.queryConfig.port != -1)
+        if (c.queryConfig.outTopic.nonEmpty && c.queryConfig.port != -1)
           failure("Cannot write query output to both kafka-topic and port.")
         else success
       )
@@ -82,11 +84,11 @@ class Parser extends OptionParser[Config]("codefeedr") {
     .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Topic, topicName = x))
     .text(
-      "Provide topic schema for given topic name. All data including the field names and field types should be present."
+      "Output the specified topic's schema which entails the field names and types."
     )
   opt[Unit]("topics")
     .action((_, c) => c.copy(mode = Mode.Topics))
-    .text("List all topic names which have a schema stored in Zookeeper.")
+    .text("List all topic names for which a schema is available.")
   opt[(String, File)]("schema")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_file>")
@@ -99,23 +101,34 @@ class Parser extends OptionParser[Config]("codefeedr") {
       )
     })
     .text(
-      "Inserts the specified Avro Schema (contained in a file) into ZooKeeper for the specified topic"
+      "Updates the schema for the specified topic with the given Avro schema (as a file)."
     )
   opt[String]("infer-schema")
-    .valueName("<topic-name>")
+    .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Infer, topicName = x))
     .text(
-      "Infers and registers the Avro schema from the last record in the specified topic."
+      "Infers and registers an Avro schema for the specified topic."
     )
   opt[String]("kafka")
-    .valueName("<kafka-address>")
+    .valueName("<Kafka_address>")
     .action((address, config) => config.copy(kafkaAddress = address))
-    .text("Sets the Kafka address.")
+    .text("Sets the Kafka address for the execution.")
 
   opt[String]("zookeeper")
-    .valueName("<ZK-address>")
+    .valueName("<ZK_address>")
     .action((address, config) => config.copy(zookeeperAddress = address))
-    .text("Sets the ZooKeeper address.")
+    .text("Sets the ZooKeeper address for the execution.")
+  opt[Seq[File]]("udf")
+    .valueName("<function_file1,function_file2...>")
+    .action({ case (sequence, c) =>
+      c.copy(
+        queryConfig =
+          c.queryConfig.copy(userFunctions = getClassNameList(sequence.toList))
+      )
+    })
+    .text(
+      "Registers the specified User defined functions for usage in queries."
+    )
   help('h', "help")
 
   private var zookeeperExposer: ZookeeperSchemaExposer = _
@@ -217,7 +230,8 @@ class Parser extends OptionParser[Config]("codefeedr") {
   }
 
   /** Executes the steps required for infering a schema.
-    * @param topicName name of the topic to be inferred
+    *
+    * @param topicName    name of the topic to be inferred
     * @param kafkaAddress address of the kafka instance where the topic is present
     */
   def inferSchema(topicName: String, kafkaAddress: String): Unit = {
@@ -227,6 +241,28 @@ class Parser extends OptionParser[Config]("codefeedr") {
     )
 
     updateSchema(topicName, schema.toString)
+    println("Successfully generated schema for topic " + topicName)
+  }
+
+  def getClassNameList(classes: List[File]): List[(String, File)] = {
+    classes.map(file => {
+      (extractClassNameFromFile(file), file)
+    })
+  }
+
+  def extractClassNameFromFile(file: File): String = {
+    var last = ""
+    val fileContents = Source.fromFile(file.getAbsoluteFile)
+    fileContents.mkString
+      .split(" ")
+      .foreach(x => {
+        if (last.equalsIgnoreCase("class")) {
+          return x
+        }
+        last = x
+      })
+    fileContents.close()
+    throw new RuntimeException("Not a valid class" + file.getName)
   }
 
 }

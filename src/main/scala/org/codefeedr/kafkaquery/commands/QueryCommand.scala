@@ -1,13 +1,16 @@
 package org.codefeedr.kafkaquery.commands
 
 import org.apache.flink.api.java.functions.NullByteKeySelector
-import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.table.api.EnvironmentSettings
 import org.apache.flink.table.api.bridge.scala.{
   StreamTableEnvironment,
   tableConversions
 }
+import org.apache.flink.table.functions.ScalarFunction
+import org.apache.flink.testutils.ClassLoaderUtils.withRoot
 import org.apache.flink.types.Row
+import org.apache.flink.util.TemporaryClassLoaderContext
 import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
 import org.codefeedr.kafkaquery.transforms.SchemaConverter.getNestedSchema
 import org.codefeedr.kafkaquery.transforms.{
@@ -15,13 +18,42 @@ import org.codefeedr.kafkaquery.transforms.{
   QuerySetup,
   TimeOutFunction
 }
-import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
+import org.codefeedr.kafkaquery.util.{
+  StreamEnvConfigurator,
+  ZookeeperSchemaExposer
+}
+import java.io.File
+
+import scala.io.Source
 
 class QueryCommand(
     qConfig: QueryConfig,
     zkExposer: ZookeeperSchemaExposer,
     kafkaAddr: String
 ) {
+  private val root = new File("custom")
+  root.deleteOnExit()
+  private var classLoaderBuilder = withRoot(root)
+
+  qConfig.userFunctions.foreach { case (name, file) =>
+    val fileContents = Source.fromFile(file.getAbsoluteFile)
+    classLoaderBuilder =
+      classLoaderBuilder.addClass(name, fileContents.mkString)
+    fileContents.close()
+  }
+
+  private val functionClassLoader = classLoaderBuilder.build()
+  TemporaryClassLoaderContext.of(functionClassLoader)
+
+  //Mark every temporary udf for deletion
+  private val rootList = root.list()
+  if (rootList != null) {
+    root
+      .list()
+      .foreach(udfName =>
+        new File(root.getAbsolutePath + "/" + udfName).deleteOnExit()
+      )
+  }
 
   val fsSettings: EnvironmentSettings = EnvironmentSettings
     .newInstance()
@@ -30,19 +62,25 @@ class QueryCommand(
     .build()
 
   val fsEnv: StreamExecutionEnvironment =
-    StreamExecutionEnvironment.getExecutionEnvironment
-
-  fsEnv.getConfig.enableObjectReuse()
+    StreamExecutionEnvironment.createLocalEnvironment(
+      StreamExecutionEnvironment.getDefaultLocalParallelism,
+      StreamEnvConfigurator.withClassLoader(functionClassLoader)
+    )
 
   val fsTableEnv: StreamTableEnvironment =
     StreamTableEnvironment.create(fsEnv, fsSettings)
 
+  qConfig.userFunctions.foreach { case (name, _) =>
+    // TODO try parent of ScalarFunction
+    val func =
+      functionClassLoader.loadClass(name).asInstanceOf[Class[ScalarFunction]]
+    fsTableEnv.createFunction(name, func)
+  }
+
   private val supportedFormats = zkExposer.getAllChildren
-  println("Supported Plugins: " + supportedFormats)
 
   private val requestedTopics =
     QuerySetup.extractTopics(qConfig.query, supportedFormats)
-  println("Requested: " + requestedTopics)
 
   for (topicName <- requestedTopics) {
     val result = zkExposer.get(topicName)
