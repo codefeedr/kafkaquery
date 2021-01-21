@@ -16,11 +16,22 @@ class TimeOutFunction( // delay after which an alert flag is thrown
 ) extends KeyedProcessFunction[java.lang.Byte, Row, Boolean] {
   // state to remember the last timer set
   private var lastTimer: ValueState[Long] = _
+  private var timerOffset: ValueState[Long] = _
+  private var isTimerRunning: ValueState[Boolean] = _
 
   override def open(conf: Configuration): Unit = { // setup timer state
+
     val lastTimerDesc =
       new ValueStateDescriptor[Long]("lastTimer", classOf[Long])
     lastTimer = getRuntimeContext.getState(lastTimerDesc)
+
+    val timerOffsetDesc =
+      new ValueStateDescriptor[Long]("timerOffset", classOf[Long])
+    timerOffset = getRuntimeContext.getState(timerOffsetDesc)
+
+    val isTimerRunningDesc =
+      new ValueStateDescriptor[Boolean]("isTimerRunning", classOf[Boolean])
+    isTimerRunning = getRuntimeContext.getState(isTimerRunningDesc)
   }
 
   @throws[Exception]
@@ -28,13 +39,23 @@ class TimeOutFunction( // delay after which an alert flag is thrown
       value: Row,
       ctx: KeyedProcessFunction[java.lang.Byte, Row, Boolean]#Context,
       out: Collector[Boolean]
-  ): Unit = { // get current time and compute timeout time
+  ): Unit = {
+    // get current time and compute timeout time
     val currentTime = ctx.timerService.currentProcessingTime
     val timeoutTime = currentTime + timeOut
-    // register timer for timeout time
-    ctx.timerService.registerProcessingTimeTimer(timeoutTime)
-    // remember timeout time
-    lastTimer.update(timeoutTime)
+
+    if (isTimerRunning.value()) { //if a timer is running already, update the offset
+      timerOffset.update(lastTimer.value() - currentTime);
+    } else { //if no timer is running create new Timer
+      ctx.timerService.registerProcessingTimeTimer(timeoutTime)
+
+      //set last timer to our new one
+      lastTimer.update(timeoutTime)
+      //reset offset
+      timerOffset.update(0)
+
+      isTimerRunning.update(true)
+    }
   }
 
   @throws[Exception]
@@ -42,11 +63,22 @@ class TimeOutFunction( // delay after which an alert flag is thrown
       timestamp: Long,
       ctx: KeyedProcessFunction[java.lang.Byte, Row, Boolean]#OnTimerContext,
       out: Collector[Boolean]
-  ): Unit = { // check if this was the last timer we registered
-    if (timestamp == lastTimer.value) { // it was, so no data was received afterwards.
+  ): Unit = {
+    if (timerOffset.value() == 0) { // Offset is 0 if no element was processed while this timer was running -> Timeout reached!
       // fire an alert.
       out.collect(true)
       func()
+    } else { //Timer expired but elements were processed while timer was running -> create new timer with corresponding offset
+      val currentTime = ctx.timerService.currentProcessingTime
+      val timeoutTime =
+        currentTime + timeOut - timerOffset
+          .value() //A fresh timer that ends when: latest element time + timeout is reached
+      ctx.timerService.registerProcessingTimeTimer(timeoutTime)
+
+      //set last timer to our new one
+      lastTimer.update(timeoutTime)
+      //reset offset
+      timerOffset.update(0)
     }
   }
 }

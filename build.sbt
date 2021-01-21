@@ -40,7 +40,6 @@ libraryDependencies ++= Seq(
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
 
   "org.apache.avro"            % "avro"                           % "1.10.1",
-  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
@@ -50,7 +49,8 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-runtime"                  % flinkVersion      % Test classifier "tests",
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 
-  "com.github.scopt"          %% "scopt"                          % "4.0.0"
+  "com.github.scopt"          %% "scopt"                          % "4.0.0",
+  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4"           % Test,
 )
 
 // Fork all tasks
