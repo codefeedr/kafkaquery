@@ -45,7 +45,7 @@ class TimeOutFunction( // delay after which an alert flag is thrown
     val timeoutTime = currentTime + timeOut
 
     if (isTimerRunning.value()) { //if a timer is running already, update the offset
-      timerOffset.update(lastTimer.value() - currentTime);
+      timerOffset.update(lastTimer.value() - currentTime)
     } else { //if no timer is running create new Timer
       ctx.timerService.registerProcessingTimeTimer(timeoutTime)
 
