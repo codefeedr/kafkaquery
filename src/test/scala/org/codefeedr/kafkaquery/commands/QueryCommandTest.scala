@@ -55,7 +55,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
         case _: JobExecutionException =>
       }
 
-      assertResult(util.List.of(Row.of("val1"), Row.of("val2")))(CollectRowSink.values)
+      assertResult(util.Arrays.asList(Row.of("val1"), Row.of("val2")))(CollectRowSink.values)
     }
 
   }
@@ -110,7 +110,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
         case _: JobExecutionException =>
       }
 
-      assertResult(util.List.of(Row.of("val1 : udf invoked"), Row.of("val2 : udf invoked")))(CollectRowSink.values)
+      assertResult(util.Arrays.asList(Row.of("val1 : udf invoked"), Row.of("val2 : udf invoked")))(CollectRowSink.values)
     }
 
   }

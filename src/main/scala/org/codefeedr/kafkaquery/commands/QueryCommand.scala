@@ -3,7 +3,6 @@ package org.codefeedr.kafkaquery.commands
 import org.apache.flink.api.java.functions.NullByteKeySelector
 import org.apache.flink.configuration.{Configuration, TaskManagerOptions}
 import org.apache.flink.runtime.client.JobExecutionException
-import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 import org.apache.flink.table.api.EnvironmentSettings
 import org.apache.flink.table.api.bridge.scala.{

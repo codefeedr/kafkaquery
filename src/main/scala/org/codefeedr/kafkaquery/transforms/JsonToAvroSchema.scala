@@ -7,9 +7,7 @@ import org.apache.avro.SchemaBuilder.TypeBuilder
 import org.apache.avro.{Schema, SchemaBuilder}
 import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.io.StdIn
 
 object JsonToAvroSchema {
 
@@ -207,7 +205,7 @@ object JsonToAvroSchema {
   private def validName(name: String): String = {
     val tempName = name.replaceAll("\\W", "_")
     if (
-      !name.isBlank &&
+      name.nonEmpty &&
       (tempName.charAt(0).isLetter || tempName.charAt(0) == '_')
     )
       return tempName
