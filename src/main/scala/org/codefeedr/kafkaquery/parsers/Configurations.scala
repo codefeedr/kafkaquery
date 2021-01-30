@@ -38,7 +38,6 @@ object Configurations {
     * @param timeout     timeout before query prints results
     * @param checkLatest check if the query output should be printed from latest
     * @param ignoreParseErr ignore JSON parse errors during deserialization
-    * @param pack        generate JAR which can be deployed to Flink cluster
     */
   case class QueryConfig(
       query: String = "",
@@ -49,7 +48,6 @@ object Configurations {
       checkEarliest: Boolean = false,
       checkLatest: Boolean = false,
       ignoreParseErr: Boolean = true,
-      pack: Boolean = false,
       userFunctions: List[(String, File)] = List[(String, File)]()
   )
 }

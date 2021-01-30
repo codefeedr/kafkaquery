@@ -13,7 +13,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
-  case class testCC(s: String)
+  private case class testCC(s: String)
 
   val subjectName = "testSubject"
   var parser: Parser = _

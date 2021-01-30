@@ -17,9 +17,9 @@ import scopt.OptionParser
 
 import scala.io.Source
 
-class Parser extends OptionParser[Config]("codefeedr") {
+class Parser extends OptionParser[Config]("kafkaquery") {
 
-  head("Codefeedr CLI", "1.0.0")
+  head("KafkaQuery CLI")
 
   opt[String]('q', "query")
     .valueName("<query>")
@@ -28,7 +28,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
     })
     .text(
       s"Allows querying available data sources through Flink SQL. " +
-        s"query - valid Flink SQL query. More information about Flink SQL can be found at: https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html. " +
+        s"query - valid Flink SQL query. More information about Flink SQL can be found at: https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations. " +
         s""
     )
     .children(
