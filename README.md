@@ -2,9 +2,9 @@
 
 CodeFeedr KafkaQuery allows to process JSON data stored in Kafka with the help of [Flink SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations).
 
-<!---
-SOME NICE VIDEO WITH SOME SOMEWHAT SIMPLE QUERY: "SELECT name from person where age < 80"
--->
+
+[![asciinema page](docs/UsageExamples/Showcase.gif)](https://asciinema.org/a/388424)
+
 
 ## Quick intro
 
