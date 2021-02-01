@@ -1,6 +1,6 @@
 # CodeFeedr KafkaQuery
 
-CodeFeedr KafkaQuery allows to process JSON data stored in Kafka with the help of [Flink SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations).
+CodeFeedr KafkaQuery allows to process JSON data stored in Kafka with the help of [Flink SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations) in a streaming fashion.
 
 
 [![asciinema page](docs/UsageExamples/Showcase.gif)](https://asciinema.org/a/388424)
@@ -109,59 +109,7 @@ For information on the commands check out the `help` option or visit the [wiki](
 
 ### Your first query
 
-To perform queries on a topic a corresponding schema is needed!
-
-Infer the schema of the `person` topic (at least one message is necessary)
-
-<details>
-	<summary><code>codefeedr --infer-schema person</code></summary>
-
-`Successfully generated schema for topic person`
-</details>
-
-Examine the generated schema
-
-<details>
-	<summary><code>codefeedr --topic person</code></summary>
-
-```
-{
-  "type" : "record",
-  "name" : "person",
-  "namespace" : "infer",
-  "fields" : [ {
-    "name" : "name",
-    "type" : "string"
-  }, {
-    "name" : "age",
-    "type" : "long"
-  }, {
-    "name" : "height",
-    "type" : "string"
-  } ]
-}
-```
-</details>
-
-Perform your first query
-
-<details>
-	<summary><code>codefeedr --query "SELECT name, age FROM person"</code></summary>
-
-```
-John Smith,32
-Galen Evan,24
-Rowen Alexa,16
-Celine Lita,26
-Paula Bess,15
-Noble Leanna,52
-Tami Bethany,39
-Jessye Joby,41
-Ike Marlowe,12
-Emmeline Vale,23
-```
-
-</details>
+[![asciinema page](docs/UsageExamples/firstQuery.gif)](https://asciinema.org/a/zkjkCKmCpEFV3AjxksHZRGNFf)
 
 ## Creating a schema for your topic
 
