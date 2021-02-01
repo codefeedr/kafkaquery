@@ -110,6 +110,7 @@ For information on the commands check out the `help` option or visit the [wiki](
 ### Your first query
 
 [![asciinema page](docs/UsageExamples/firstQuery.gif)](https://asciinema.org/a/zkjkCKmCpEFV3AjxksHZRGNFf)
+(Click on the gif to access the recording and copy paste the commands)
 
 ## Creating a schema for your topic
 
@@ -334,42 +335,12 @@ public class FeetToCm extends ScalarFunction {
 }
 ```
 
+[![asciinema page](docs/UsageExamples/udf.gif)](https://asciinema.org/a/388476)
+(Click on the gif to access the recording and copy paste the commands)
 
-Pass the function over in the `udf` option and make use of it in a query:
+## Authors
 
-<details><summary><code>-q "SELECT FeetToCm(height) FROM person" --udf "path/to/FeetToCm.java"</code></summary>
 
-```
-182cm
-174cm
-171cm
-172cm
-162cm
-167cm
-175cm
-160cm
-152.4cm
-172cm
-```
-</details>
 
-It is possible to add multiple Functions like in the following:
-
-<details><summary><code>-q "SELECT name, CmToFeet(FeetToCm(height)) FROM person" --udf "FeetToCm.java","CmToFeet.java"</code></summary>
-
-```
-John Smith,5.97ft
-Galen Evan,5.70ft
-Rowen Alexa,5.61ft
-Celine Lita,5.64ft
-Paula Bess,5.31ft
-Noble Leanna,5.47ft
-Tami Bethany,5.74ft
-Jessye Joby,5.24ft
-Ike Marlowe,5.00ft
-Emmeline Vale,5.64ft
-```
-
-</details>
-
+## License
 
