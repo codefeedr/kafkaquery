@@ -321,6 +321,38 @@ The schema for topic `person` is updated now.
 
 </details>
 
+## Querying 
+
+To perform any query make use of the `--query <queryText>` command.
+
+Details on how to specify the actual query text can be found [here (Flink SQL).](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations)
+
+#### For querying the following options are available:
+
+***
+
+`-t, --timeout <seconds>`  - Terminates the program once no new message has arrived for the specified duration.
+
+`--from-earliest`  - messages are processed from the earliest available offset (default).
+
+`--from-latest`  - messages are processed from the latest available offset.
+<br><br>
+
+##### Output destinations:
+
+`--output kafka:<topic_name>`  - Writes results to the specified Kafka topic.
+
+`--output socket:<port>`  - Writes results to a local socket on the specified port.
+
+*When not specified, results are printed to the terminal by default.
+  
+  ***
+
+
+#### Example Usage: Aggregate author names for every hour
+[![asciinema page](docs/UsageExamples/aggregateAuthors.gif)](https://asciinema.org/a/360672)
+
+
 ## User defined functions
 
 KafkaQuery allows making use of [Flink's User-defined Functions](https://ci.apache.org/projects/flink/flink-docs-stable/dev/table/functions/udfs.html#user-defined-functions), short UDFs. 
@@ -393,7 +425,3 @@ Emmeline Vale,5.64ft
 </details>
 
 
-## Querying 
-
-#### Example 3: Aggregate author names for every hour
-[![asciinema page](docs/UsageExamples/aggregateAuthors.gif)](https://asciinema.org/a/360672)
