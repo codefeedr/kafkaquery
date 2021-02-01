@@ -34,7 +34,7 @@ libraryDependencies ++= Seq(
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
-  "org.mockito"               %% "mockito-scala"                  % "1.16.15"         % Test,
+  "org.mockito"               %% "mockito-scala"                  % "1.16.19"         % Test,
 
   "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
