@@ -1,13 +1,10 @@
 package org.codefeedr.kafkaquery.parsers
 
-import java.io.File
-import java.nio.charset.Charset
-
 import org.apache.avro.Schema
 import org.apache.commons.io.FileUtils
 import org.apache.zookeeper.KeeperException
 import org.codefeedr.kafkaquery.commands.QueryCommand
-import org.codefeedr.kafkaquery.parsers.Configurations.{Config, Mode}
+import org.codefeedr.kafkaquery.parsers.Configurations._
 import org.codefeedr.kafkaquery.transforms.JsonToAvroSchema
 import org.codefeedr.kafkaquery.util.{
   KafkaRecordRetriever,
@@ -15,6 +12,8 @@ import org.codefeedr.kafkaquery.util.{
 }
 import scopt.OptionParser
 
+import java.io.File
+import java.nio.charset.Charset
 import scala.io.Source
 
 class Parser extends OptionParser[Config]("kafkaquery") {
@@ -32,44 +31,30 @@ class Parser extends OptionParser[Config]("kafkaquery") {
         s""
     )
     .children(
-      opt[Int]('p', "port")
-        .valueName("<port>")
-        .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(port = x)))
-        .text(
-          s"Writes the output data of the given query to a socket which gets created with the specified port. " +
-            s"Local connection with the host can be done by e.g. netcat."
-        ),
-      opt[String]('k', "kafka_topic")
-        .valueName("<kafka-topic>")
-        .action((x, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(outTopic = x))
-        )
-        .text(
-          s"Writes the output data of the given query to the specified Kafka topic. " +
-            s"If the Kafka topic does not exist, it will be created."
-        ),
+      opt[(String, String)]('o', "output")
+        .keyValueName("<sink>", "<param>")
+        .text("Writes the output data of the query to the given sink.")
+        .action({ case ((k, v), c) =>
+          c.copy(queryConfig =
+            c.queryConfig.copy(output = QueryOut.initFromString(k, v))
+          )
+        }),
       opt[Int]('t', "timeout")
         .valueName("<seconds>")
         .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(timeout = x)))
         .text(
           s"Specifies a timeout in seconds. If no message is received for the duration of the timeout the program terminates."
         ),
-      opt[Unit]("from-earliest")
-        .action((_, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(checkEarliest = true))
+      opt[String]("start")
+        .action((x, c) =>
+          c.copy(queryConfig =
+            c.queryConfig.copy(startStrategy = QueryStart.initFromString(x))
+          )
         )
         .text(
-          s"Specifies that the data is consumed from the earliest offset." +
-            s"If no state is specified the query results will be printed from EARLIEST."
-        ),
-      opt[Unit]("from-latest")
-        .action((_, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(checkLatest = true))
+          "Specifies the start strategy for retrieving records from Kafka.p"
         )
-        .text(
-          s"Specifies that the data is consumed from the latest offset."
-        ),
-      checkConfig(c =>
+      /*checkConfig(c =>
         if (c.queryConfig.checkEarliest && c.queryConfig.checkLatest)
           failure("Cannot start from earliest and latest.")
         else success
@@ -78,7 +63,7 @@ class Parser extends OptionParser[Config]("kafkaquery") {
         if (c.queryConfig.outTopic.nonEmpty && c.queryConfig.port != -1)
           failure("Cannot write query output to both kafka-topic and port.")
         else success
-      )
+      )*/
     )
   opt[String]("topic")
     .valueName("<topic_name>")

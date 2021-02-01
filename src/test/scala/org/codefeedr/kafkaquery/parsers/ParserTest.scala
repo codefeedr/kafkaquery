@@ -147,7 +147,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
     }
   }
 
-  test("failureOnBothFromEarliestAndLatest") {
+  /*test("failureOnBothFromEarliestAndLatest") {
     val args: Seq[String] = Seq(
       "-q", "select * from topic",
       "--from-earliest",
@@ -159,7 +159,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
       assertResult(outStream.toString.lines.toArray)(Array("Error: Cannot start from earliest and latest.", "Try --help for more information."))
     }
 
-  }
+  }*/
 
   test("testPrintSchema") {
     val topic = "World"

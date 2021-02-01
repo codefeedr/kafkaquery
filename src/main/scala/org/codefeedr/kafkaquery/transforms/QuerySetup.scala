@@ -1,6 +1,7 @@
 package org.codefeedr.kafkaquery.transforms
 
 import org.apache.avro.Schema
+import org.codefeedr.kafkaquery.parsers.Configurations.QueryStart
 
 import scala.collection.JavaConverters._
 
@@ -23,7 +24,7 @@ object QuerySetup {
     * @param name name of the table/Kafka topic
     * @param tableFields DDL StringBuilder of the table fields
     * @param kafkaAddr Kafka server address
-    * @param checkLatest record retrieval strategy (from LATEST or EARLIEST)
+    * @param startStrategy strategy for fetching records
     * @param ignoreParseErr JSON ignore parse errors property
     * @return temporary table DDL string
     */
@@ -31,7 +32,7 @@ object QuerySetup {
       name: String,
       tableFields: java.lang.StringBuilder,
       kafkaAddr: String,
-      checkLatest: Boolean,
+      startStrategy: QueryStart,
       ignoreParseErr: Boolean
   ): String = {
     "CREATE TEMPORARY TABLE `" + name + "` (" + tableFields + ") " +
@@ -41,7 +42,7 @@ object QuerySetup {
       "'properties.bootstrap.servers' = '" + kafkaAddr + "', " +
       "'properties.group.id' = 'kq', " +
       "'scan.startup.mode' = '" +
-      (if (checkLatest) "latest-offset" else "earliest-offset") + "', " +
+      startStrategy.getProperty + "', " +
       "'properties.default.api.timeout.ms' = '5000', " + // TODO create option for setting this value
       "'format' = 'json', " +
       "'json.timestamp-format.standard' = 'ISO-8601', " +
