@@ -5,8 +5,11 @@ import org.apache.commons.io.FileUtils
 import org.apache.zookeeper.KeeperException
 import org.codefeedr.kafkaquery.commands.QueryCommand
 import org.codefeedr.kafkaquery.parsers.Configurations._
-import org.codefeedr.kafkaquery.transforms.{JsonToAvroSchema, SimpleSchemaGenerator}
-import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, ZookeeperSchemaExposer}
+import org.codefeedr.kafkaquery.transforms.JsonToAvroSchema
+import org.codefeedr.kafkaquery.util.{
+  KafkaRecordRetriever,
+  ZookeeperSchemaExposer
+}
 import scopt.OptionParser
 import java.io.File
 import java.nio.charset.Charset
