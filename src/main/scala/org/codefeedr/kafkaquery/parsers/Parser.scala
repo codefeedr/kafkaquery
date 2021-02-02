@@ -191,19 +191,6 @@ class Parser extends OptionParser[Config]("kafkaquery") {
     }
   }
 
-  /** Prints an easy to read version of the schema associated with the specified topic.
-    *
-    * @param topicName name of the topic in zookeeper
-    */
-  def printSimpleSchema(topicName: String): Unit = {
-    val schema = zookeeperExposer.get(topicName)
-    if (schema.isDefined) {
-      println(SimpleSchemaGenerator.getSimpleSchema(schema.get))
-    } else {
-      Console.err.println(s"Schema of topic $topicName is not defined.")
-    }
-  }
-
   /** Initialises the ZookeeperSchemaExposer.
     *
     * @return success of the initialisation
