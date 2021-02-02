@@ -170,7 +170,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
       Console.withOut(outStream) {
 
-        parser.printSchema(topic)
+        parser.printAvroSchema(topic)
 
         assertResult(format.replaceAll("[\r\n]", "")) {
           outStream.toString().replaceAll("[\r\n]", "")
@@ -185,7 +185,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
       Console.withErr(outStream) {
 
-        parser.printSchema("Hello")
+        parser.printAvroSchema("Hello")
 
         assertResult("Schema of topic Hello is not defined.") {
           outStream.toString().trim

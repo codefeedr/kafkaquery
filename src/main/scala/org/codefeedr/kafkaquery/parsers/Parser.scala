@@ -5,15 +5,12 @@ import org.apache.commons.io.FileUtils
 import org.apache.zookeeper.KeeperException
 import org.codefeedr.kafkaquery.commands.QueryCommand
 import org.codefeedr.kafkaquery.parsers.Configurations._
-import org.codefeedr.kafkaquery.transforms.JsonToAvroSchema
-import org.codefeedr.kafkaquery.util.{
-  KafkaRecordRetriever,
-  ZookeeperSchemaExposer
-}
+import org.codefeedr.kafkaquery.transforms.{JsonToAvroSchema, SimpleSchemaGenerator}
+import org.codefeedr.kafkaquery.util.{KafkaRecordRetriever, ZookeeperSchemaExposer}
 import scopt.OptionParser
-
 import java.io.File
 import java.nio.charset.Charset
+
 import scala.io.Source
 
 class Parser extends OptionParser[Config]("kafkaquery") {
@@ -65,7 +62,7 @@ class Parser extends OptionParser[Config]("kafkaquery") {
         else success
       )*/
     )
-  opt[String]("topic")
+  opt[String]("schema")
     .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Topic, topicName = x))
     .text(
@@ -74,7 +71,7 @@ class Parser extends OptionParser[Config]("kafkaquery") {
   opt[Unit]("topics")
     .action((_, c) => c.copy(mode = Mode.Topics))
     .text("List all topic names for which a schema is available.")
-  opt[(String, File)]("schema")
+  opt[(String, File)]("update-schema")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_file>")
     .action({ case ((topicName, schema), c) =>
@@ -132,7 +129,7 @@ class Parser extends OptionParser[Config]("kafkaquery") {
               zookeeperExposer,
               config.kafkaAddress
             ).execute()
-          case Mode.Topic  => printSchema(config.topicName)
+          case Mode.Topic  => printAvroSchema(config.topicName)
           case Mode.Topics => printTopics()
           case Mode.Schema =>
             updateSchema(config.topicName, config.avroSchema)
@@ -181,14 +178,27 @@ class Parser extends OptionParser[Config]("kafkaquery") {
     }
   }
 
-  /** Prints the schema associated with the topic
+  /** Prints the Avro schema associated with the topic
     *
     * @param topicName name of the topic in zookeeper
     */
-  def printSchema(topicName: String): Unit = {
+  def printAvroSchema(topicName: String): Unit = {
     val schema = zookeeperExposer.get(topicName)
     if (schema.isDefined) {
       println(schema.get.toString(true))
+    } else {
+      Console.err.println(s"Schema of topic $topicName is not defined.")
+    }
+  }
+
+  /** Prints an easy to read version of the schema associated with the specified topic.
+    *
+    * @param topicName name of the topic in zookeeper
+    */
+  def printSimpleSchema(topicName: String): Unit = {
+    val schema = zookeeperExposer.get(topicName)
+    if (schema.isDefined) {
+      println(SimpleSchemaGenerator.getSimpleSchema(schema.get))
     } else {
       Console.err.println(s"Schema of topic $topicName is not defined.")
     }
