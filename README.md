@@ -18,7 +18,7 @@ Create a schema for your topic
 
 Check the schema of the topic
 
-    --topic person
+    --schema person
 
 Query on the topic
 
@@ -171,7 +171,7 @@ In this case, using a map (m) is appropriate.
 
 Verify the schema with the following option:
 
-<details><summary><code>--topic color</code></summary>
+<details><summary><code>--schema color</code></summary>
 
 ```
 {
@@ -210,7 +210,7 @@ Sometimes inferring a schema does not yield the expected result.
 
 For that case, it is possible to manually insert a schema: 
 
-`--schema:<topic_name>=<avro_Schema_file>`
+`--update-schema:<topic_name>=<avro_Schema_file>`
 
 [Flink's data type mapping](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/connectors/formats/avro.html#data-type-mapping) is quite helpful when deciding for data types for your own schema.
 
@@ -264,7 +264,7 @@ Create a file containing the updated schema:
 
 Run the program with the following option:
 
-`--schema:person=path/to/schema.txt`
+`--update-schema:person=path/to/schema.txt`
 
 The schema for topic `person` is updated now.
 
@@ -342,4 +342,6 @@ public class FeetToCm extends ScalarFunction {
 (Click on the gif to access the recording and copy paste the commands)
 
 ## Authors
+
+Developed by [Abele Mălan](https://github.com/AbeleMM), [Jakub Nguyen](https://github.com/jakub014), Daniel van den Akker, Christiaan Botha and Ayush Patandin.
 
