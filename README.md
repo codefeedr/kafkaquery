@@ -298,9 +298,10 @@ Details on how to specify the actual query text can be found [here (Flink SQL).]
   ***
 
 
-#### Example Usage: Aggregate author names for every hour
-[![asciinema page](docs/UsageExamples/aggregateAuthors.gif)](https://asciinema.org/a/360672)
+#### Example Usage: Count license occurrences hourly using [tumbling windows](https://ci.apache.org/projects/flink/flink-docs-stable/dev/stream/operators/windows.html#tumbling-windows) with a timeout of 5s
+[![asciinema page](docs/UsageExamples/UsageExample1.gif)](https://asciinema.org/a/R21SCIQS9MG79Nmfs3dUmlpw1)
 
+ <!-- Add another example usage, outputting to kafka topic, then consuming again from that topic -->
 
 ## User defined functions
 
@@ -339,8 +340,4 @@ public class FeetToCm extends ScalarFunction {
 (Click on the gif to access the recording and copy paste the commands)
 
 ## Authors
-
-
-
-## License
 
