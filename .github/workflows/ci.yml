@@ -24,7 +24,7 @@ jobs:
       - name: Scalafmt
         run: sbt scalafmtCheck
       - name: Coverage
-        run: sbt coverageReport coveralls
+        run: sbt coverageReport
       - name: Cleanup
         run: |
           rm -rf "$HOME/.ivy2/local" || true
