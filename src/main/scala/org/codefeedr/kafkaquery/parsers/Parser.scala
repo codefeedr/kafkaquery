@@ -45,7 +45,7 @@ class Parser extends OptionParser[Config]("kafkaquery") {
         .text(
           s"Specifies a timeout in seconds. If no message is received for the duration of the timeout the program terminates."
         ),
-      opt[String]("start")
+      opt[String]('s', "start")
         .action((x, c) =>
           c.copy(queryConfig =
             c.queryConfig.copy(startStrategy = QueryStart.initFromString(x))
