@@ -282,9 +282,11 @@ Details on how to specify the actual query text can be found [here (Flink SQL).]
 
 `-t, --timeout <seconds>`  - Terminates the program once no new message has arrived for the specified duration.
 
-`--from-earliest`  - messages are processed from the earliest available offset (default).
+##### Start strategy:
 
-`--from-latest`  - messages are processed from the latest available offset.
+`--start earliest`  - messages are processed from the earliest available offset (default).
+
+`--start latest`  - messages are processed from the latest available offset.
 <br><br>
 
 ##### Output destinations:
