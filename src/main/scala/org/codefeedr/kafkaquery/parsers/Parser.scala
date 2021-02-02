@@ -54,16 +54,6 @@ class Parser extends OptionParser[Config]("kafkaquery") {
         .text(
           "Specifies the start strategy for retrieving records from Kafka.p"
         )
-      /*checkConfig(c =>
-        if (c.queryConfig.checkEarliest && c.queryConfig.checkLatest)
-          failure("Cannot start from earliest and latest.")
-        else success
-      ),
-      checkConfig(c =>
-        if (c.queryConfig.outTopic.nonEmpty && c.queryConfig.port != -1)
-          failure("Cannot write query output to both kafka-topic and port.")
-        else success
-      )*/
     )
   opt[String]("schema")
     .valueName("<topic_name>")
