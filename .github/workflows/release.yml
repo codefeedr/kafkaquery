@@ -1,0 +1,52 @@
+name: Release
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.8"
+      - name: Set Env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Package Archives
+        run: sbt "set version := \"$RELEASE_VERSION\"" packArchive
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: KafkaQuery ${{ env.RELEASE_VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload .tar.gz
+        id: upload-targz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafkaquery-${{ env.RELEASE_VERSION }}.tar.gz
+          asset_name: kafkaquery-${{ env.RELEASE_VERSION }}.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload .zip
+        id: upload-zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: target/kafkaquery-${{ env.RELEASE_VERSION }}.zip
+          asset_name: kafkaquery-${{ env.RELEASE_VERSION }}.zip
+          asset_content_type: application/zip
