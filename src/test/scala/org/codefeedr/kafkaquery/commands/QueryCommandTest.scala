@@ -3,13 +3,12 @@ package org.codefeedr.kafkaquery.commands
 import java.io.{File, PrintWriter}
 import java.util
 import java.util.Collections
-
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.types.Row
-import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.parsers.Configurations.{EarliestQueryStart, QueryConfig}
 import org.codefeedr.kafkaquery.parsers.Parser
 import org.codefeedr.kafkaquery.util.ZookeeperSchemaExposer
 import org.mockito.MockitoSugar
@@ -43,7 +42,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
       publishStringMessageToKafka(tableName, "")
 
       val qc = new QueryCommand(
-        QueryConfig(timeout = 2, query = "select f1 from t1", checkEarliest = true, ignoreParseErr = false, timeoutFunc = () => ()),
+        QueryConfig(timeout = 2, query = "select f1 from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => ()),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
@@ -98,7 +97,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
       val udfFile = new File(udfName)
       udfFile.deleteOnExit()
       val qc = new QueryCommand(
-        QueryConfig(timeout = 2, query = "select MyUDF(f1) from t1", checkEarliest = true, ignoreParseErr = false, timeoutFunc = () => (), userFunctions = new Parser().getClassNameList(List(udfFile))),
+        QueryConfig(timeout = 2, query = "select MyUDF(f1) from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => (), userFunctions = new Parser().getClassNameList(List(udfFile))),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )

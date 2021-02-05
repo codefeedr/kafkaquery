@@ -1,8 +1,5 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.nio.charset.StandardCharsets
-import java.util.Properties
-
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.{
   FlinkKafkaProducer,
@@ -10,27 +7,27 @@ import org.apache.flink.streaming.connectors.kafka.{
 }
 import org.apache.flink.types.Row
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.parsers.Configurations.{
+  ConsoleQueryOut,
+  KafkaQueryOut,
+  QueryOut,
+  SocketQueryOut
+}
 import org.codefeedr.kafkaquery.sinks.{SimplePrintSinkFunction, SocketSink}
+
+import java.nio.charset.StandardCharsets
+import java.util.Properties
 
 object QueryOutput {
 
   def selectOutput(
       ds: DataStream[Row],
-      qConfig: QueryConfig,
+      queryOut: QueryOut,
       kafkaAddr: String
-  ): Unit = {
-    if (qConfig.outTopic.nonEmpty) {
-      queryToKafkaTopic(
-        qConfig.outTopic,
-        ds,
-        kafkaAddr
-      )
-    } else if (qConfig.port != -1) {
-      queryToSocket(qConfig.port, ds)
-    } else {
-      queryToConsole(ds)
-    }
+  ): Unit = queryOut match {
+    case ConsoleQueryOut()    => queryToConsole(ds)
+    case KafkaQueryOut(topic) => queryToKafkaTopic(topic, ds, kafkaAddr)
+    case SocketQueryOut(port) => queryToSocket(port, ds)
   }
 
   /** Print data stream of query results to console.

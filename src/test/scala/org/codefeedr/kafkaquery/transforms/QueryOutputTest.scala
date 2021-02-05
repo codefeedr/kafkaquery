@@ -1,19 +1,19 @@
 package org.codefeedr.kafkaquery.transforms
 
-import java.io.{ByteArrayOutputStream, PrintStream}
-import java.net.Socket
-
 import net.manub.embeddedkafka.Codecs.stringDeserializer
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.test.util.MiniClusterWithClientResource
 import org.apache.flink.types.Row
-import org.codefeedr.kafkaquery.parsers.Configurations.QueryConfig
+import org.codefeedr.kafkaquery.parsers.Configurations.{ConsoleQueryOut, KafkaQueryOut, SocketQueryOut}
 import org.codefeedr.kafkaquery.sinks.SocketSink
 import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.io.{ByteArrayOutputStream, PrintStream}
+import java.net.Socket
 
 class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka with MockitoSugar {
 
@@ -41,7 +41,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     val outContent = new ByteArrayOutputStream
     System.setOut(new PrintStream(outContent))
 
-    QueryOutput.selectOutput(ds, QueryConfig(), "")
+    QueryOutput.selectOutput(ds, ConsoleQueryOut(), "")
     env.execute()
 
     System.out.flush()
@@ -54,7 +54,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     val outputStream = new ByteArrayOutputStream()
     doReturn(outputStream).when(SocketSink.getSocket).getOutputStream
 
-    QueryOutput.selectOutput(ds, QueryConfig(port = 0), "")
+    QueryOutput.selectOutput(ds, SocketQueryOut(port = 0), "")
     env.execute()
 
     assertResult(outputStream.toString.lines.toArray)(Array("val1", "val2"))
@@ -70,7 +70,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     withRunningKafkaOnFoundPort(config) {
       implicit config =>
 
-      QueryOutput.selectOutput(ds, QueryConfig(outTopic = topicName),"localhost:" + config.kafkaPort)
+      QueryOutput.selectOutput(ds, KafkaQueryOut(topic = topicName),"localhost:" + config.kafkaPort)
       env.execute()
 
       assertResult(consumeFirstMessageFrom(topicName))("val1")

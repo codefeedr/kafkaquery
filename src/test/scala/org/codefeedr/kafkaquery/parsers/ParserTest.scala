@@ -13,7 +13,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
-  case class testCC(s: String)
+  private case class testCC(s: String)
 
   val subjectName = "testSubject"
   var parser: Parser = _
@@ -111,7 +111,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
       val avroSchema = """{"type":"record","name":"Person","namespace":"org.codefeedr.plugins.repl.org.codefeedr.kafkaquery.parsers.Parser.updateSchema","fields":[{"name":"name","type":"string"},{"name":"age","type":"int"},{"name":"city","type":"string"}]}"""
       new PrintWriter(fileName) {write(avroSchema); close()}
 
-      parser.parse(("--schema "+ subjectName +"=" + fileName+ " --zookeeper "+zkAddress).split(" "))
+      parser.parse(("--update-schema "+ subjectName +"=" + fileName+ " --zookeeper "+zkAddress).split(" "))
 
       assert(parser.getSchemaExposer.get(subjectName).get.toString.equals(avroSchema))
 
@@ -147,20 +147,6 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
     }
   }
 
-  test("failureOnBothFromEarliestAndLatest") {
-    val args: Seq[String] = Seq(
-      "-q", "select * from topic",
-      "--from-earliest",
-      "--from-latest"
-    )
-
-    Console.withErr(outStream) {
-      parser.parseConfig(args)
-      assertResult(outStream.toString.lines.toArray)(Array("Error: Cannot start from earliest and latest.", "Try --help for more information."))
-    }
-
-  }
-
   test("testPrintSchema") {
     val topic = "World"
 
@@ -170,7 +156,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
       Console.withOut(outStream) {
 
-        parser.printSchema(topic)
+        parser.printAvroSchema(topic)
 
         assertResult(format.replaceAll("[\r\n]", "")) {
           outStream.toString().replaceAll("[\r\n]", "")
@@ -185,7 +171,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
       Console.withErr(outStream) {
 
-        parser.printSchema("Hello")
+        parser.printAvroSchema("Hello")
 
         assertResult("Schema of topic Hello is not defined.") {
           outStream.toString().trim

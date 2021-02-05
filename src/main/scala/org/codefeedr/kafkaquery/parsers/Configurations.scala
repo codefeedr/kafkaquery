@@ -3,6 +3,7 @@ package org.codefeedr.kafkaquery.parsers
 import org.codefeedr.kafkaquery.parsers.Configurations.Mode.Mode
 
 import java.io.File
+import scala.collection.mutable
 
 object Configurations {
 
@@ -31,25 +32,53 @@ object Configurations {
   }
 
   /** Query config which contains copied arguments from the CLI
-    *
-    * @param query       query string
-    * @param outTopic    output Kafka topic
-    * @param port        socket port number
-    * @param timeout     timeout before query prints results
-    * @param checkLatest check if the query output should be printed from latest
+    * @param query query string
+    * @param output output channel for query results
+    * @param startStrategy define start point for fetching elements from Kafka (e.g. from latest/earliest)
+    * @param timeout timeout before query prints results
+    * @param timeoutFunc function to be executed when timeout is triggered
     * @param ignoreParseErr ignore JSON parse errors during deserialization
-    * @param pack        generate JAR which can be deployed to Flink cluster
+    * @param userFunctions list containing tuples with the names and files containing the user defined functions
     */
   case class QueryConfig(
       query: String = "",
-      outTopic: String = "",
-      port: Int = -1,
+      output: QueryOut = ConsoleQueryOut(),
+      startStrategy: QueryStart = EarliestQueryStart(),
       timeout: Int = -1,
       timeoutFunc: () => Unit = () => System.exit(0),
-      checkEarliest: Boolean = false,
-      checkLatest: Boolean = false,
       ignoreParseErr: Boolean = true,
-      pack: Boolean = false,
-      userFunctions: List[(String, File)] = List[(String, File)]()
+      userFunctions: List[(String, File)] = Nil
   )
+
+  abstract class QueryOut()
+  object QueryOut {
+    val idStrings: mutable.Set[String] = new mutable.HashSet()
+
+    def initFromString(k: String, v: String): QueryOut = k match {
+      case "kafka"  => KafkaQueryOut(v)
+      case "socket" => SocketQueryOut(v.toInt)
+      case _        => ConsoleQueryOut()
+    }
+
+  }
+  case class ConsoleQueryOut() extends QueryOut
+  case class KafkaQueryOut(topic: String) extends QueryOut
+  case class SocketQueryOut(port: Int) extends QueryOut
+
+  abstract class QueryStart() {
+    def getProperty: String
+  }
+  object QueryStart {
+    def initFromString(k: String): QueryStart = k match {
+      case "earliest" => EarliestQueryStart()
+      case "latest"   => LatestQueryStart()
+    }
+  }
+  case class EarliestQueryStart() extends QueryStart {
+    override def getProperty: String = "earliest-offset"
+  }
+  case class LatestQueryStart() extends QueryStart {
+    override def getProperty: String = "latest-offset"
+  }
+
 }

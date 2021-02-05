@@ -93,7 +93,7 @@ class QueryCommand(
         topicName,
         QuerySetup.generateTableSchema(result.get, getNestedSchema),
         kafkaAddr,
-        qConfig.checkLatest,
+        qConfig.startStrategy,
         qConfig.ignoreParseErr
       )
 
@@ -109,7 +109,7 @@ class QueryCommand(
       .keyBy(new NullByteKeySelector[Row]())
       .process(new TimeOutFunction(qConfig.timeout * 1000, qConfig.timeoutFunc))
   }
-  QueryOutput.selectOutput(ds, qConfig, kafkaAddr)
+  QueryOutput.selectOutput(ds, qConfig.output, kafkaAddr)
 
   def execute(): Unit = {
     try {

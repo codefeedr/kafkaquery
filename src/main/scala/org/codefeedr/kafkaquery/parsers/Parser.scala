@@ -1,25 +1,24 @@
 package org.codefeedr.kafkaquery.parsers
 
-import java.io.File
-import java.nio.charset.Charset
-
 import org.apache.avro.Schema
 import org.apache.commons.io.FileUtils
 import org.apache.zookeeper.KeeperException
 import org.codefeedr.kafkaquery.commands.QueryCommand
-import org.codefeedr.kafkaquery.parsers.Configurations.{Config, Mode}
+import org.codefeedr.kafkaquery.parsers.Configurations._
 import org.codefeedr.kafkaquery.transforms.JsonToAvroSchema
 import org.codefeedr.kafkaquery.util.{
   KafkaRecordRetriever,
   ZookeeperSchemaExposer
 }
 import scopt.OptionParser
+import java.io.File
+import java.nio.charset.Charset
 
 import scala.io.Source
 
-class Parser extends OptionParser[Config]("codefeedr") {
+class Parser extends OptionParser[Config]("kafkaquery") {
 
-  head("Codefeedr CLI", "1.0.0")
+  head("KafkaQuery CLI")
 
   opt[String]('q', "query")
     .valueName("<query>")
@@ -28,59 +27,35 @@ class Parser extends OptionParser[Config]("codefeedr") {
     })
     .text(
       s"Allows querying available data sources through Flink SQL. " +
-        s"query - valid Flink SQL query. More information about Flink SQL can be found at: https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/sql.html. " +
+        s"query - valid Flink SQL query. More information about Flink SQL can be found at: https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html#operations. " +
         s""
     )
     .children(
-      opt[Int]('p', "port")
-        .valueName("<port>")
-        .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(port = x)))
-        .text(
-          s"Writes the output data of the given query to a socket which gets created with the specified port. " +
-            s"Local connection with the host can be done by e.g. netcat."
-        ),
-      opt[String]('k', "kafka_topic")
-        .valueName("<kafka-topic>")
-        .action((x, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(outTopic = x))
-        )
-        .text(
-          s"Writes the output data of the given query to the specified Kafka topic. " +
-            s"If the Kafka topic does not exist, it will be created."
-        ),
+      opt[(String, String)]('o', "output")
+        .keyValueName("<sink>", "<param>")
+        .text("Writes the output data of the query to the given sink.")
+        .action({ case ((k, v), c) =>
+          c.copy(queryConfig =
+            c.queryConfig.copy(output = QueryOut.initFromString(k, v))
+          )
+        }),
       opt[Int]('t', "timeout")
         .valueName("<seconds>")
         .action((x, c) => c.copy(queryConfig = c.queryConfig.copy(timeout = x)))
         .text(
           s"Specifies a timeout in seconds. If no message is received for the duration of the timeout the program terminates."
         ),
-      opt[Unit]("from-earliest")
-        .action((_, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(checkEarliest = true))
+      opt[String]('s', "start")
+        .action((x, c) =>
+          c.copy(queryConfig =
+            c.queryConfig.copy(startStrategy = QueryStart.initFromString(x))
+          )
         )
         .text(
-          s"Specifies that the data is consumed from the earliest offset." +
-            s"If no state is specified the query results will be printed from EARLIEST."
-        ),
-      opt[Unit]("from-latest")
-        .action((_, c) =>
-          c.copy(queryConfig = c.queryConfig.copy(checkLatest = true))
+          "Specifies the start strategy for retrieving records from Kafka.p"
         )
-        .text(
-          s"Specifies that the data is consumed from the latest offset."
-        ),
-      checkConfig(c =>
-        if (c.queryConfig.checkEarliest && c.queryConfig.checkLatest)
-          failure("Cannot start from earliest and latest.")
-        else success
-      ),
-      checkConfig(c =>
-        if (c.queryConfig.outTopic.nonEmpty && c.queryConfig.port != -1)
-          failure("Cannot write query output to both kafka-topic and port.")
-        else success
-      )
     )
-  opt[String]("topic")
+  opt[String]("schema")
     .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Topic, topicName = x))
     .text(
@@ -89,7 +64,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
   opt[Unit]("topics")
     .action((_, c) => c.copy(mode = Mode.Topics))
     .text("List all topic names for which a schema is available.")
-  opt[(String, File)]("schema")
+  opt[(String, File)]("update-schema")
     .keyName("<topic_name>")
     .valueName("<avro_Schema_file>")
     .action({ case ((topicName, schema), c) =>
@@ -147,7 +122,7 @@ class Parser extends OptionParser[Config]("codefeedr") {
               zookeeperExposer,
               config.kafkaAddress
             ).execute()
-          case Mode.Topic  => printSchema(config.topicName)
+          case Mode.Topic  => printAvroSchema(config.topicName)
           case Mode.Topics => printTopics()
           case Mode.Schema =>
             updateSchema(config.topicName, config.avroSchema)
@@ -196,11 +171,11 @@ class Parser extends OptionParser[Config]("codefeedr") {
     }
   }
 
-  /** Prints the schema associated with the topic
+  /** Prints the Avro schema associated with the topic
     *
     * @param topicName name of the topic in zookeeper
     */
-  def printSchema(topicName: String): Unit = {
+  def printAvroSchema(topicName: String): Unit = {
     val schema = zookeeperExposer.get(topicName)
     if (schema.isDefined) {
       println(schema.get.toString(true))

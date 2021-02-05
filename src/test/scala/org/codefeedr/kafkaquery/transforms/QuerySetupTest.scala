@@ -1,11 +1,11 @@
 package org.codefeedr.kafkaquery.transforms
 
 import java.lang
-
 import org.apache.avro.Schema
+import org.codefeedr.kafkaquery.parsers.Configurations.{EarliestQueryStart, LatestQueryStart, QueryStart}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor2}
+import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
 
 class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPropertyChecks {
 
@@ -14,28 +14,28 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
     assert(res == List("t2", "t3"))
   }
 
-  val testDataGetTableCreationCommand: TableFor2[Boolean, String] =
+  val testDataGetTableCreationCommand: TableFor1[QueryStart] =
     Table(
-      ("checkLatest", "offsetText"),
+      "startStrategy",
 
-      (false, "earliest-offset"),
-      (true, "latest-offset")
+      EarliestQueryStart(),
+      LatestQueryStart()
     )
-  forAll(testDataGetTableCreationCommand) { (checkLatest: Boolean, offsetText: String) =>
+  forAll(testDataGetTableCreationCommand) { (startStrategy: QueryStart) =>
     val tableName = "t1"
     val tableFields = "(f1 INT, f2 STRING)"
     val kafkaAddr = "localhost:9092"
 
     assertResult(
-      s"CREATE TEMPORARY TABLE `t1` ((f1 INT, f2 STRING)) WITH ('connector' = 'kafka', " +
-        s"'topic' = '$tableName', 'properties.bootstrap.servers' = '$kafkaAddr', " +
-        s"'properties.group.id' = 'kq', 'scan.startup.mode' = '$offsetText', " +
-        "'properties.default.api.timeout.ms' = '5000', 'format' = 'json', " +
-        "'json.timestamp-format.standard' = 'ISO-8601', 'json.ignore-parse-errors' = 'true', " +
-        "'json.fail-on-missing-field' = 'false')"
+      s"CREATE TEMPORARY TABLE `$tableName` ($tableFields) WITH ('connector.type' = 'kafka', " +
+        s"'connector.version' = 'universal', 'connector.topic' = 't1', 'connector.properties.bootstrap.servers' " +
+        s"= 'localhost:9092', 'connector.startup-mode' = '${startStrategy.getProperty}', " +
+        "'connector.properties.default.api.timeout.ms' = '5000', " +
+        s"'format.type' = 'json', " +
+        s"'format.fail-on-missing-field' = 'false')"
     )(
       QuerySetup.getTableCreationCommand(tableName, new java.lang.StringBuilder(tableFields), kafkaAddr,
-        checkLatest = checkLatest, ignoreParseErr = true)
+        startStrategy = startStrategy, ignoreParseErr = true)
     )
   }
 
@@ -81,7 +81,7 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
           |     ]
           |}
           |""".stripMargin,
-        "field field type, field TIMESTAMP(3) WITH LOCAL TIME ZONE"
+        "field field type, field TIMESTAMP(3), WATERMARK FOR field AS field - INTERVAL '0.001' SECOND"
       )
     )
   forAll(testDataGenerateTableSchema) { (schemaStr: String, tableDesc: String) =>
