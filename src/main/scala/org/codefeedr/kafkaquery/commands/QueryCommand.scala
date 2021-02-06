@@ -1,6 +1,5 @@
 package org.codefeedr.kafkaquery.commands
 
-import org.apache.flink.api.java.functions.NullByteKeySelector
 import org.apache.flink.configuration.{Configuration, TaskManagerOptions}
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
@@ -105,9 +104,7 @@ class QueryCommand(
     fsTableEnv.sqlQuery(qConfig.query).toRetractStream[Row].map(_._2)
 
   if (qConfig.timeout > 0) {
-    ds
-      .keyBy(new NullByteKeySelector[Row]())
-      .process(new TimeOutFunction(qConfig.timeout * 1000, qConfig.timeoutFunc))
+    ds.process(new TimeOutFunction(qConfig.timeout * 1000, qConfig.timeoutFunc))
   }
   QueryOutput.selectOutput(ds, qConfig.output, kafkaAddr)
 

@@ -27,12 +27,12 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
     val kafkaAddr = "localhost:9092"
 
     assertResult(
-      s"CREATE TEMPORARY TABLE `$tableName` ($tableFields) WITH ('connector.type' = 'kafka', " +
-        s"'connector.version' = 'universal', 'connector.topic' = 't1', 'connector.properties.bootstrap.servers' " +
-        s"= 'localhost:9092', 'connector.startup-mode' = '${startStrategy.getProperty}', " +
-        "'connector.properties.default.api.timeout.ms' = '5000', " +
-        s"'format.type' = 'json', " +
-        s"'format.fail-on-missing-field' = 'false')"
+      s"CREATE TEMPORARY TABLE `$tableName` ($tableFields) WITH ('connector' = 'kafka', " +
+        s"'topic' = '$tableName', 'properties.bootstrap.servers' = '$kafkaAddr', " +
+        s"'properties.group.id' = 'kq', 'scan.startup.mode' = '${startStrategy.getProperty}', " +
+        "'properties.default.api.timeout.ms' = '5000', 'format' = 'json', " +
+        "'json.timestamp-format.standard' = 'ISO-8601', 'json.ignore-parse-errors' = 'true', " +
+        "'json.fail-on-missing-field' = 'false')"
     )(
       QuerySetup.getTableCreationCommand(tableName, new java.lang.StringBuilder(tableFields), kafkaAddr,
         startStrategy = startStrategy, ignoreParseErr = true)
@@ -54,7 +54,8 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
           |     ]
           |}
           |""".stripMargin,
-        "field field type, field field type, `kafka_time` TIMESTAMP(3) METADATA FROM 'timestamp'"
+        "field field type, field field type, `kafka_time` TIMESTAMP(3) METADATA FROM 'timestamp', " +
+          "WATERMARK FOR `kafka_time` AS `kafka_time` - INTERVAL '0.001' SECOND"
       ),
       (
         """

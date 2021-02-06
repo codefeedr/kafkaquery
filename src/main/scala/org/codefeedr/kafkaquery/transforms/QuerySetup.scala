@@ -37,16 +37,19 @@ object QuerySetup {
   ): String = {
     "CREATE TEMPORARY TABLE `" + name + "` (" + tableFields + ") " +
       "WITH (" +
-      "'connector.type' = 'kafka', " +
-      "'connector.version' = 'universal', " +
-      "'connector.topic' = '" + name + "', " +
-      "'connector.properties.bootstrap.servers' = '" + kafkaAddr + "', " +
-      "'connector.startup-mode' = '" +
+      "'connector' = 'kafka', " +
+      "'topic' = '" + name + "', " +
+      "'properties.bootstrap.servers' = '" + kafkaAddr + "', " +
+      "'properties.group.id' = 'kq', " +
+      "'scan.startup.mode' = '" +
       startStrategy.getProperty +
       "', " +
-      "'connector.properties.default.api.timeout.ms' = '5000', " + //Todo create option for setting this value
-      "'format.type' = 'json', " +
-      "'format.fail-on-missing-field' = 'false'" +
+      "'properties.default.api.timeout.ms' = '5000', " + // TODO create option for setting this value
+      "'format' = 'json', " +
+      "'json.timestamp-format.standard' = 'ISO-8601', " +
+      "'json.ignore-parse-errors' = '" +
+      (if (ignoreParseErr) "true" else "false") + "', " +
+      "'json.fail-on-missing-field' = 'false'" +
       ")"
   }
 
@@ -82,7 +85,10 @@ object QuerySetup {
     }
 
     if (rowtimeEnabled && !rowtimeFound) {
-      res.append("`kafka_time` TIMESTAMP(3) METADATA FROM 'timestamp', ")
+      res.append(
+        "`kafka_time` TIMESTAMP(3) METADATA FROM 'timestamp', " +
+          "WATERMARK FOR `kafka_time` AS `kafka_time` - INTERVAL '0.001' SECOND, "
+      )
     }
 
     if (res.length() - 2 == res.lastIndexOf(", "))
