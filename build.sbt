@@ -11,7 +11,7 @@ scalacOptions ++= Seq(
 )
 
 enablePlugins(PackPlugin)
-packMain := Map("kafkaquery" -> "org.codefeedr.kafkaquery.CLI")
+packMain := Map("kafkaquery" -> "org.kafkaquery.CLI")
 
 lazy val flinkVersion       = "1.12.0"
 lazy val kafkaVersion       = "2.7.0"
