@@ -6,10 +6,7 @@ import org.apache.zookeeper.KeeperException
 import org.kafkaquery.commands.QueryCommand
 import org.kafkaquery.parsers.Configurations._
 import org.kafkaquery.transforms.JsonToAvroSchema
-import org.kafkaquery.util.{
-  KafkaRecordRetriever,
-  ZookeeperSchemaExposer
-}
+import org.kafkaquery.util.{KafkaRecordRetriever, ZookeeperSchemaExposer}
 import scopt.OptionParser
 import java.io.File
 import java.nio.charset.Charset

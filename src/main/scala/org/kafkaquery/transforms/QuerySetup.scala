@@ -42,8 +42,7 @@ object QuerySetup {
       "'properties.bootstrap.servers' = '" + kafkaAddr + "', " +
       "'properties.group.id' = 'kq', " +
       "'scan.startup.mode' = '" +
-      startStrategy.getProperty +
-      "', " +
+      startStrategy.getProperty + "', " +
       "'properties.default.api.timeout.ms' = '5000', " + // TODO create option for setting this value
       "'format' = 'json', " +
       "'json.timestamp-format.standard' = 'ISO-8601', " +

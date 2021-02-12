@@ -14,15 +14,8 @@ import org.apache.flink.types.Row
 import org.apache.flink.util.TemporaryClassLoaderContext
 import org.kafkaquery.parsers.Configurations.QueryConfig
 import org.kafkaquery.transforms.SchemaConverter.getNestedSchema
-import org.kafkaquery.transforms.{
-  QueryOutput,
-  QuerySetup,
-  TimeOutFunction
-}
-import org.kafkaquery.util.{
-  StreamEnvConfigurator,
-  ZookeeperSchemaExposer
-}
+import org.kafkaquery.transforms.{QueryOutput, QuerySetup, TimeOutFunction}
+import org.kafkaquery.util.{StreamEnvConfigurator, ZookeeperSchemaExposer}
 import java.io.File
 
 import scala.io.Source
