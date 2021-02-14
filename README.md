@@ -341,6 +341,12 @@ public class FeetToCm extends ScalarFunction {
 [![asciinema page](docs/UsageExamples/udf.gif)](https://asciinema.org/a/388476)
 (Click on the gif to access the recording and copy paste the commands)
 
+
+#### Usage of external libraries in UDFs
+
+If a UDF makes use of external libraries make sure to add jars containing all necessary dependencies in the `udf_dependencies` folder.
+
+
 ## Authors
 
 Developed by [Abele Mălan](https://github.com/AbeleMM), [Jakub Nguyen](https://github.com/jakub014), Daniel van den Akker, Christiaan Botha and Ayush Patandin.
