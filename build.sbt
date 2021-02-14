@@ -11,7 +11,8 @@ scalacOptions ++= Seq(
 )
 
 enablePlugins(PackPlugin)
-packMain := Map("kafkaquery" -> "org.codefeedr.kafkaquery.CLI")
+packMain := Map(name.value -> "org.kafkaquery.CLI")
+packExtraClasspath := Map(name.value -> Seq("${PROG_HOME}/udf_dependencies/*"))
 
 lazy val flinkVersion       = "1.12.0"
 lazy val kafkaVersion       = "2.7.0"
@@ -34,7 +35,7 @@ libraryDependencies ++= Seq(
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
-  "org.mockito"               %% "mockito-scala"                  % "1.16.15"         % Test,
+  "org.mockito"               %% "mockito-scala"                  % "1.16.25"         % Test,
 
   "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
