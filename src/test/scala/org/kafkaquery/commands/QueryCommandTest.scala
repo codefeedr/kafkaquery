@@ -39,10 +39,10 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
     withRunningKafkaOnFoundPort(config) { implicit config =>
       publishStringMessageToKafka(tableName, """{ "f1": "val1", "f2": 1 }""")
       publishStringMessageToKafka(tableName, """{ "f1": "val2", "f2": 2 }""")
-      publishStringMessageToKafka(tableName, "")
+      publishStringMessageToKafka(tableName, "error")
 
       val qc = new QueryCommand(
-        QueryConfig(timeout = 2, query = "select f1 from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => ()),
+        QueryConfig(timeout = 4, query = "select f1 from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => ()),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
@@ -81,7 +81,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
     withRunningKafkaOnFoundPort(config) { implicit config =>
       publishStringMessageToKafka(tableName, """{ "f1": "val1", "f2": 1 }""")
       publishStringMessageToKafka(tableName, """{ "f1": "val2", "f2": 2 }""")
-      publishStringMessageToKafka(tableName, "")
+      publishStringMessageToKafka(tableName, "error")
 
       val udfName = "MyUDF.java"
 
@@ -97,7 +97,7 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
       val udfFile = new File(udfName)
       udfFile.deleteOnExit()
       val qc = new QueryCommand(
-        QueryConfig(timeout = 2, query = "select MyUDF(f1) from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => (), userFunctions = new Parser().getClassNameList(List(udfFile))),
+        QueryConfig(timeout = 4, query = "select MyUDF(f1) from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => (), userFunctions = new Parser().getClassNameList(List(udfFile))),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
