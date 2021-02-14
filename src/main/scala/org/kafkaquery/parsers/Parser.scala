@@ -5,12 +5,12 @@ import org.apache.commons.io.FileUtils
 import org.apache.zookeeper.KeeperException
 import org.kafkaquery.commands.QueryCommand
 import org.kafkaquery.parsers.Configurations._
-import org.kafkaquery.transforms.JsonToAvroSchema
+import org.kafkaquery.transforms.{JsonToAvroSchema, SimpleSchemaGenerator}
 import org.kafkaquery.util.{KafkaRecordRetriever, ZookeeperSchemaExposer}
 import scopt.OptionParser
+
 import java.io.File
 import java.nio.charset.Charset
-
 import scala.io.Source
 
 class Parser extends OptionParser[Config]("kafkaquery") {
@@ -56,7 +56,13 @@ class Parser extends OptionParser[Config]("kafkaquery") {
     .valueName("<topic_name>")
     .action((x, c) => c.copy(mode = Mode.Topic, topicName = x))
     .text(
-      "Output the specified topic's schema which entails the field names and types."
+      "Outputs the specified topic's schema which entails the field names and types."
+    )
+  opt[String]("simple-schema")
+    .valueName("<topic_name>")
+    .action((x, c) => c.copy(mode = Mode.SimpleTopic, topicName = x))
+    .text(
+      "Outputs the specified topic's schema in a simplified form."
     )
   opt[Unit]("topics")
     .action((_, c) => c.copy(mode = Mode.Topics))
@@ -119,11 +125,11 @@ class Parser extends OptionParser[Config]("kafkaquery") {
               zookeeperExposer,
               config.kafkaAddress
             ).execute()
-          case Mode.Topic  => printAvroSchema(config.topicName)
-          case Mode.Topics => printTopics()
-          case Mode.Schema =>
-            updateSchema(config.topicName, config.avroSchema)
-          case Mode.Infer => inferSchema(config.topicName, config.kafkaAddress)
+          case Mode.Topic       => printAvroSchema(config.topicName)
+          case Mode.SimpleTopic => printSimpleAvroSchema(config.topicName)
+          case Mode.Topics      => printTopics()
+          case Mode.Schema      => updateSchema(config.topicName, config.avroSchema)
+          case Mode.Infer       => inferSchema(config.topicName, config.kafkaAddress)
           case _ =>
             Console.err.println("Command not recognized.")
         }
@@ -176,6 +182,19 @@ class Parser extends OptionParser[Config]("kafkaquery") {
     val schema = zookeeperExposer.get(topicName)
     if (schema.isDefined) {
       println(schema.get.toString(true))
+    } else {
+      Console.err.println(s"Schema of topic $topicName is not defined.")
+    }
+  }
+
+  /** Prints the simple Avro schema associated with the topic
+    *
+    * @param topicName name of the topic in zookeeper
+    */
+  def printSimpleAvroSchema(topicName: String): Unit = {
+    val schema = zookeeperExposer.get(topicName)
+    if (schema.isDefined) {
+      println(SimpleSchemaGenerator.getSimpleSchema(schema.get))
     } else {
       Console.err.println(s"Schema of topic $topicName is not defined.")
     }

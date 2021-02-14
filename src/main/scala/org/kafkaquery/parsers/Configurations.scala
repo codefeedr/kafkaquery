@@ -28,7 +28,7 @@ object Configurations {
     */
   object Mode extends Enumeration {
     type Mode = Value
-    val Query, Topic, Topics, Schema, Infer = Value
+    val Query, SimpleTopic, Topic, Topics, Schema, Infer = Value
   }
 
   /** Query config which contains copied arguments from the CLI
