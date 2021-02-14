@@ -2,7 +2,6 @@ package org.kafkaquery.parsers
 
 import java.io.{ByteArrayOutputStream, File, PrintWriter}
 
-import com.sksamuel.avro4s.AvroSchema
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
 import org.apache.commons.io.FileUtils
@@ -13,11 +12,11 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
-  private case class testCC(s: String)
-
-  val subjectName = "testSubject"
-  var parser: Parser = _
-  var outStream: ByteArrayOutputStream = _
+  private val subjectName = "testSubject"
+  private val subjectSchema = new Schema.Parser()
+    .parse("""{"type":"record","name":"testCC","fields":[{"name":"s","type":"string"}]}""")
+  private var parser: Parser = _
+  private var outStream: ByteArrayOutputStream = _
 
   implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(
     kafkaPort = 0,
@@ -64,7 +63,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
   test("parseDefinedPlusParseEmpty") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
-      parser.getSchemaExposer.put(AvroSchema[testCC], subjectName)
+      parser.getSchemaExposer.put(subjectSchema, subjectName)
 
       parser.parse(Array("-t", subjectName))
       assert(parser.getSchemaExposer.get(subjectName).isDefined)
@@ -74,7 +73,7 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
   test("printAllTopics") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
-      parser.getSchemaExposer.put(AvroSchema[testCC], subjectName)
+      parser.getSchemaExposer.put(subjectSchema, subjectName)
 
       //check whether the TopicParser prints the same output after more than 1 call.
       Console.withOut(outStream)(parser.printTopics())
