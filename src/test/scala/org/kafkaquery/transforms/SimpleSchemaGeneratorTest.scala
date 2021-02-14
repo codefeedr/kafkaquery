@@ -1,4 +1,4 @@
-package org.codefeedr.kafkaquery.transforms
+package org.kafkaquery.transforms
 
 import org.apache.avro.Schema
 import org.scalatest.funsuite.AnyFunSuite
