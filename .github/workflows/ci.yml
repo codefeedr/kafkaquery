@@ -4,6 +4,7 @@ on: [push, pull_request]
 jobs:
   compile_test_cov_fmt:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       # define Java options for both official sbt and sbt-extras
       JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
