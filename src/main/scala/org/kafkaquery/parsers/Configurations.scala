@@ -55,14 +55,16 @@ object Configurations {
     val idStrings: mutable.Set[String] = new mutable.HashSet()
 
     def initFromString(k: String, v: String): QueryOut = k match {
-      case "kafka"  => KafkaQueryOut(v)
-      case "socket" => SocketQueryOut(v.toInt)
-      case _        => ConsoleQueryOut()
+      case "kafka"     => KafkaQueryOut(v)
+      case "kafkaJson" => KafkaQueryOutJson(v)
+      case "socket"    => SocketQueryOut(v.toInt)
+      case _           => ConsoleQueryOut()
     }
 
   }
   case class ConsoleQueryOut() extends QueryOut
   case class KafkaQueryOut(topic: String) extends QueryOut
+  case class KafkaQueryOutJson(topic: String) extends QueryOut
   case class SocketQueryOut(port: Int) extends QueryOut
 
   abstract class QueryStart() {

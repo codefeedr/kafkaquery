@@ -9,6 +9,7 @@ import org.apache.flink.table.api.bridge.scala.{
   tableConversions
 }
 import org.apache.flink.table.functions.ScalarFunction
+import org.apache.flink.table.types.utils.TypeConversions.fromDataTypeToLegacyInfo
 import org.apache.flink.testutils.ClassLoaderUtils.withRoot
 import org.apache.flink.types.Row
 import org.apache.flink.util.TemporaryClassLoaderContext
@@ -16,8 +17,8 @@ import org.kafkaquery.parsers.Configurations.QueryConfig
 import org.kafkaquery.transforms.SchemaConverter.getNestedSchema
 import org.kafkaquery.transforms.{QueryOutput, QuerySetup, TimeOutFunction}
 import org.kafkaquery.util.{StreamEnvConfigurator, ZookeeperSchemaExposer}
-import java.io.File
 
+import java.io.File
 import scala.io.Source
 
 class QueryCommand(
@@ -95,13 +96,18 @@ class QueryCommand(
 
   private val table = fsTableEnv.sqlQuery(qConfig.query)
 
+  private val dataTypes = fromDataTypeToLegacyInfo(
+    table.getSchema.getFieldDataTypes
+  )
+  private val fieldNames = table.getSchema.getFieldNames
+
   val ds: DataStream[Row] =
     table.toRetractStream[Row].map(_._2)
 
   if (qConfig.timeout > 0) {
     ds.process(new TimeOutFunction(qConfig.timeout * 1000, qConfig.timeoutFunc))
   }
-  QueryOutput.selectOutput(ds, qConfig.output, kafkaAddr, table)
+  QueryOutput.selectOutput(ds, qConfig.output, kafkaAddr, dataTypes, fieldNames)
 
   def execute(): Unit = {
     try {
