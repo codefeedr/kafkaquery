@@ -1,18 +1,12 @@
 package org.kafkaquery.transforms
 
+import org.apache.flink.api.java.typeutils.RowTypeInfo
+import org.apache.flink.formats.json.JsonRowSerializationSchema
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.{
-  FlinkKafkaProducer,
-  KafkaSerializationSchema
-}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer
+import org.apache.flink.table.api.Table
 import org.apache.flink.types.Row
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.kafkaquery.parsers.Configurations.{
-  ConsoleQueryOut,
-  KafkaQueryOut,
-  QueryOut,
-  SocketQueryOut
-}
+import org.kafkaquery.parsers.Configurations.{ConsoleQueryOut, KafkaQueryOut, QueryOut, SocketQueryOut}
 import org.kafkaquery.sinks.{SimplePrintSinkFunction, SocketSink}
 
 import java.nio.charset.StandardCharsets
@@ -23,10 +17,11 @@ object QueryOutput {
   def selectOutput(
       ds: DataStream[Row],
       queryOut: QueryOut,
-      kafkaAddr: String
+      kafkaAddr: String,
+      table: Table
   ): Unit = queryOut match {
     case ConsoleQueryOut()    => queryToConsole(ds)
-    case KafkaQueryOut(topic) => queryToKafkaTopic(topic, ds, kafkaAddr)
+    case KafkaQueryOut(topic) => queryToKafkaTopic(topic, ds, kafkaAddr, table)
     case SocketQueryOut(port) => queryToSocket(port, ds)
   }
 
@@ -56,15 +51,21 @@ object QueryOutput {
   private def queryToKafkaTopic(
       outTopic: String,
       ds: DataStream[Row],
-      kafkaAddress: String
+      kafkaAddress: String,
+      table: Table
   ): Unit = {
     val props: Properties = new Properties()
     props.put("bootstrap.servers", kafkaAddress)
-    props.put("acks", "all")
+    //props.put("acks", "all")
     println(s"Query results are being sent to $outTopic")
+
+    table.printSchema()
+    val types = table.getSchema.getFieldTypes
+    val names = table.getSchema.getFieldNames
+
     val producer = new FlinkKafkaProducer[Row](
       outTopic,
-      new KafkaSerializationSchema[Row] {
+      /*new KafkaSerializationSchema[Row] {
         override def serialize(
             element: Row,
             timestamp: java.lang.Long
@@ -74,9 +75,10 @@ object QueryOutput {
             element.toString.getBytes(StandardCharsets.UTF_8)
           )
         }
-      },
-      props,
-      FlinkKafkaProducer.Semantic.NONE
+      },*/
+      JsonRowSerializationSchema.builder().withTypeInfo(new RowTypeInfo(types, names)).build(),
+      props
+      //FlinkKafkaProducer.Semantic.EXACTLY_ONCE
     )
     ds.addSink(producer)
   }

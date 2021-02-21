@@ -41,7 +41,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     val outContent = new ByteArrayOutputStream
     System.setOut(new PrintStream(outContent))
 
-    QueryOutput.selectOutput(ds, ConsoleQueryOut(), "")
+    QueryOutput.selectOutput(ds, ConsoleQueryOut(), "", null)
     env.execute()
 
     System.out.flush()
@@ -54,7 +54,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     val outputStream = new ByteArrayOutputStream()
     doReturn(outputStream).when(SocketSink.getSocket).getOutputStream
 
-    QueryOutput.selectOutput(ds, SocketQueryOut(port = 0), "")
+    QueryOutput.selectOutput(ds, SocketQueryOut(port = 0), "", null)
     env.execute()
 
     assertResult(outputStream.toString.lines.toArray)(Array("val1", "val2"))
@@ -70,7 +70,7 @@ class QueryOutputTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka
     withRunningKafkaOnFoundPort(config) {
       implicit config =>
 
-      QueryOutput.selectOutput(ds, KafkaQueryOut(topic = topicName),"localhost:" + config.kafkaPort)
+      QueryOutput.selectOutput(ds, KafkaQueryOut(topic = topicName),"localhost:" + config.kafkaPort, null)
       env.execute()
 
       assertResult(consumeFirstMessageFrom(topicName))("val1")
