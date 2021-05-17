@@ -51,7 +51,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 
   "com.github.scopt"          %% "scopt"                          % "4.0.0",
-  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4"           % Test,
+  "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.9"           % Test,
 )
 
 // Fork all tasks
