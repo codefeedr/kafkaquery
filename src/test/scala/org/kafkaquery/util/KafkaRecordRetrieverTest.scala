@@ -4,10 +4,11 @@ import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatest.funsuite.AnyFunSuite
 
-class KafkaRecordRetrieverTest extends AnyFunSuite
-with BeforeAndAfter
-with BeforeAndAfterAll
-with EmbeddedKafka {
+class KafkaRecordRetrieverTest
+    extends AnyFunSuite
+    with BeforeAndAfter
+    with BeforeAndAfterAll
+    with EmbeddedKafka {
 
   val topicName = "someTopic"
   val someTopicData: List[String] = List(
@@ -18,7 +19,7 @@ with EmbeddedKafka {
     """{ "name": "title5", "retrieveDate": "2020-05-19T17:48:03.000Z" }"""
   )
 
-  def init(givenConfig : EmbeddedKafkaConfig) : Unit = {
+  def init(givenConfig: EmbeddedKafkaConfig): Unit = {
     implicit val config = givenConfig
     for (i <- someTopicData.indices) {
       publishStringMessageToKafka(topicName, someTopicData(i))
@@ -30,15 +31,14 @@ with EmbeddedKafka {
     zooKeeperPort = 0
   )
 
-
-
   test("Normal retrieval") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       init(config)
-      val retriever = new KafkaRecordRetriever(topicName, "localhost:"+config.kafkaPort)
+      val retriever =
+        new KafkaRecordRetriever(topicName, "localhost:" + config.kafkaPort)
       for (i <- 1 to someTopicData.length) {
         val msg = retriever.getNextRecord.getOrElse("")
-        assert(msg == someTopicData(someTopicData.length-i))
+        assert(msg == someTopicData(someTopicData.length - i))
       }
     }
   }
@@ -46,10 +46,11 @@ with EmbeddedKafka {
   test("Retrieving more than available") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       init(config)
-      val retriever = new KafkaRecordRetriever(topicName, "localhost:"+config.kafkaPort)
+      val retriever =
+        new KafkaRecordRetriever(topicName, "localhost:" + config.kafkaPort)
       for (i <- 1 to someTopicData.length) {
         val msg = retriever.getNextRecord.getOrElse("")
-        assert(msg == someTopicData(someTopicData.length-i))
+        assert(msg == someTopicData(someTopicData.length - i))
       }
       assert(retriever.getNextRecord.isEmpty)
     }
@@ -59,14 +60,17 @@ with EmbeddedKafka {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       init(config)
       val maxRecords = 3
-      val retriever = new KafkaRecordRetriever(topicName, "localhost:"+config.kafkaPort, maxRecords)
+      val retriever = new KafkaRecordRetriever(
+        topicName,
+        "localhost:" + config.kafkaPort,
+        maxRecords
+      )
       for (i <- 1 to maxRecords) {
         val msg = retriever.getNextRecord.getOrElse("")
-        assert(msg == someTopicData(someTopicData.length-i))
+        assert(msg == someTopicData(someTopicData.length - i))
       }
       assert(retriever.getNextRecord.isEmpty)
     }
   }
-
 
 }
