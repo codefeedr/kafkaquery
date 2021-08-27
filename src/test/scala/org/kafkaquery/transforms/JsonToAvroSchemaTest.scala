@@ -4,9 +4,17 @@ import org.apache.avro.Schema
 import org.kafkaquery.util.{KafkaRecordRetriever, UserInputRetriever}
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2, TableFor3}
+import org.scalatest.prop.{
+  TableDrivenPropertyChecks,
+  TableFor1,
+  TableFor2,
+  TableFor3
+}
 
-class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks with MockitoSugar {
+class JsonToAvroSchemaTest
+    extends AnyFunSuite
+    with TableDrivenPropertyChecks
+    with MockitoSugar {
 
   val topicName = "myTopic"
 
@@ -227,8 +235,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       )
     )
 
-  /**
-    * Parameterized good weather tests for all supported types.
+  /** Parameterized good weather tests for all supported types.
     */
   forAll(testData) { (avroSchema: String, jsonSample: String) =>
     assertResult(new Schema.Parser().parse(avroSchema)) {
@@ -261,8 +268,7 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
         |""".stripMargin*/
     )
 
-  /**
-    * Parameterized bad weather tests.
+  /** Parameterized bad weather tests.
     */
   forAll(exceptionalTestData) { jsonSample: String =>
     assertThrows[IllegalArgumentException] {
@@ -272,7 +278,6 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
       JsonToAvroSchema.inferSchema(topicName, recordRetrieverMock)
     }
   }
-
 
   val objectOrMapData: TableFor3[String, String, Char] =
     Table(
@@ -421,8 +426,8 @@ class JsonToAvroSchemaTest extends AnyFunSuite with TableDrivenPropertyChecks wi
         'm'
       )
     )
-  /**
-    * Tests for object - map ambiguity feature
+
+  /** Tests for object - map ambiguity feature
     */
   forAll(objectOrMapData) { (schema: String, jsonSample: String, input: Char) =>
     assertResult(new Schema.Parser().parse(schema)) {
