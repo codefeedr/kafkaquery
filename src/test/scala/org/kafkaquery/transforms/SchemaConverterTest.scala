@@ -12,17 +12,27 @@ class SchemaConverterTest extends AnyFunSuite with TableDrivenPropertyChecks {
 
   case class Nested(someVal: Int, someOtherVal: String)
 
-  case class AllSupportedTypes(someString: String, someFloat: Float, someDouble: Double, someInt: Int,
-                               someBoolean: Boolean, someLong: Long, someOptional: Option[String], someByte: ByteBuffer,
-                               someMap: Map[String, Int], someArray: Array[Int], someList: List[Long], someNested: Nested,
-                               someNestedList: List[Nested])
+  case class AllSupportedTypes(
+      someString: String,
+      someFloat: Float,
+      someDouble: Double,
+      someInt: Int,
+      someBoolean: Boolean,
+      someLong: Long,
+      someOptional: Option[String],
+      someByte: ByteBuffer,
+      someMap: Map[String, Int],
+      someArray: Array[Int],
+      someList: List[Long],
+      someNested: Nested,
+      someNestedList: List[Nested]
+  )
 
   val schema: Schema = AvroSchema[AllSupportedTypes]
 
   val testData: TableFor2[String, String] =
     Table(
       ("FieldName", "expectedType"),
-
       ("someString", "STRING"),
       ("someFloat", "FLOAT"),
       ("someDouble", "DOUBLE"),
@@ -38,9 +48,8 @@ class SchemaConverterTest extends AnyFunSuite with TableDrivenPropertyChecks {
       ("someNestedList", "ARRAY<ROW<`someVal` INTEGER, `someOtherVal` STRING>>")
     )
 
-  /**
-   * Parameterized good weather tests for all supported types.
-   */
+  /** Parameterized good weather tests for all supported types.
+    */
   forAll(testData) { (name: String, t: String) =>
     assertResult(("`" + name + "`", t)) {
       val res = getNestedSchema(name, schema.getField(name).schema())
@@ -48,8 +57,7 @@ class SchemaConverterTest extends AnyFunSuite with TableDrivenPropertyChecks {
     }
   }
 
-  /**
-    * Test unsupported types.
+  /** Test unsupported types.
     */
   assertThrows[RuntimeException] {
 
