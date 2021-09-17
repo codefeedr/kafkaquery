@@ -7,11 +7,11 @@ import scala.io.StdIn
 
 class UserInputRetrieverTest extends AnyFunSuite with MockitoSugar {
 
-
   test("Simple character retrieval") {
     val inputReaderMock = mock[UserInputRetriever.InputReadWrapper]
     when(inputReaderMock.readChar())
-      .thenReturn('k').andThen('o')
+      .thenReturn('k')
+      .andThen('o')
 
     UserInputRetriever.reader = inputReaderMock
 

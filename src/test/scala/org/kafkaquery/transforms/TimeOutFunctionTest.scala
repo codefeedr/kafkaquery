@@ -16,13 +16,17 @@ class TimeOutFunctionTest extends AnyFunSuite with BeforeAndAfter {
 
   before {
     funcExecuted = false
-    timeOutFunction = new TimeOutFunction(timeoutValMs, () => {
-      funcExecuted = true
-      Unit
-    }) // 1 s timeout
+    timeOutFunction = new TimeOutFunction(
+      timeoutValMs,
+      () => {
+        funcExecuted = true
+        Unit
+      }
+    ) // 1 s timeout
 
     testHarness = new OneInputStreamOperatorTestHarness[Row, Unit](
-      new ProcessOperator(timeOutFunction))
+      new ProcessOperator(timeOutFunction)
+    )
 
     testHarness.open()
   }

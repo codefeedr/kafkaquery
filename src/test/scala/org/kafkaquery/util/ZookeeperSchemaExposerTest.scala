@@ -23,7 +23,8 @@ import org.apache.avro.Schema
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
-class ZookeeperSchemaExposerTest extends AnyFunSuite
+class ZookeeperSchemaExposerTest
+    extends AnyFunSuite
     with BeforeAndAfter
     with BeforeAndAfterAll
     with EmbeddedKafka {
@@ -66,7 +67,8 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   val host = "localhost:2181"
 
   override def beforeAll(): Unit = {
-    implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(zooKeeperPort = 2181)
+    implicit val config: EmbeddedKafkaConfig =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181)
     EmbeddedKafka.start()
   }
 

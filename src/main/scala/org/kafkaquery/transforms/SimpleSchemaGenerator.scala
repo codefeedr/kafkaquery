@@ -6,8 +6,10 @@ import org.apache.avro.Schema.Type
 object SimpleSchemaGenerator {
 
   /** Produces and returns a simplified version of the specified Avro schema.
-    * @param schema the schema to be simplified
-    * @return A simplified schema representation
+    * @param schema
+    *   the schema to be simplified
+    * @return
+    *   A simplified schema representation
     */
   def getSimpleSchema(schema: Schema): String = {
     getSimpleSchema(schema, 0)
