@@ -10,10 +10,11 @@ import scala.collection.JavaConverters._
 
 /** Exposes (Avro) schema's to ZooKeeper.
   *
-  * @param host the server host of ZooKeeper.
-  * @param root the root node of the schema's
-  *             NOTE: Must start with / and only contain one '/'
-  *             DEFAULT: /codefeedr:schemas
+  * @param host
+  *   the server host of ZooKeeper.
+  * @param root
+  *   the root node of the schema's NOTE: Must start with / and only contain one
+  *   '/' DEFAULT: /codefeedr:schemas
   */
 class ZookeeperSchemaExposer(
     host: String,
@@ -58,9 +59,12 @@ class ZookeeperSchemaExposer(
 
   /** Stores a schema bound to a subject.
     *
-    * @param schema  The schema belonging to that topic.
-    * @param subject The subject belonging to that schema.
-    * @return True if correctly saved.
+    * @param schema
+    *   The schema belonging to that topic.
+    * @param subject
+    *   The subject belonging to that schema.
+    * @return
+    *   True if correctly saved.
     */
   def put(schema: Schema, subject: String): Boolean = {
     val path = s"$root/$subject"
@@ -85,8 +89,11 @@ class ZookeeperSchemaExposer(
 
   /** Get a schema based on a subject.
     *
-    * @param subject The subject the schema belongs to.
-    * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
+    * @param subject
+    *   The subject the schema belongs to.
+    * @return
+    *   None if no schema is found or an invalid schema. Otherwise it returns
+    *   the schema.
     */
   def get(subject: String): Option[Schema] = {
     try {
@@ -102,8 +109,10 @@ class ZookeeperSchemaExposer(
 
   /** Deletes a Schema.
     *
-    * @param subject The subject the schema belongs to.
-    * @return True if successfully deleted, otherwise false.
+    * @param subject
+    *   The subject the schema belongs to.
+    * @return
+    *   True if successfully deleted, otherwise false.
     */
   def delete(subject: String): Boolean = {
     try {
@@ -135,7 +144,8 @@ class ZookeeperSchemaExposer(
   }
 
   /** Getter for all children in zookeeper path.
-    * @return list of all children in zookeeper path
+    * @return
+    *   list of all children in zookeeper path
     */
   def getAllChildren: List[String] = {
     val exists = client.exists(s"$root", false)
@@ -151,8 +161,10 @@ class ZookeeperSchemaExposer(
 
   /** Tries to parse a String into a Schema.
     *
-    * @param schemaString The schema string.
-    * @return An option of a Schema.
+    * @param schemaString
+    *   The schema string.
+    * @return
+    *   An option of a Schema.
     */
   def parse(schemaString: String): Option[Schema] = {
     try {

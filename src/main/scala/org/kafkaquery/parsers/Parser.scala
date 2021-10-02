@@ -128,8 +128,8 @@ class Parser extends OptionParser[Config]("kafkaquery") {
           case Mode.Topic       => printAvroSchema(config.topicName)
           case Mode.SimpleTopic => printSimpleAvroSchema(config.topicName)
           case Mode.Topics      => printTopics()
-          case Mode.Schema      => updateSchema(config.topicName, config.avroSchema)
-          case Mode.Infer       => inferSchema(config.topicName, config.kafkaAddress)
+          case Mode.Schema => updateSchema(config.topicName, config.avroSchema)
+          case Mode.Infer  => inferSchema(config.topicName, config.kafkaAddress)
           case _ =>
             Console.err.println("Command not recognized.")
         }
@@ -139,8 +139,10 @@ class Parser extends OptionParser[Config]("kafkaquery") {
 
   /** Updates the AvroSchema in Zookeeper for the specified topic
     *
-    * @param topicName    topic Name
-    * @param schemaString an Avro Schema in String format.
+    * @param topicName
+    *   topic Name
+    * @param schemaString
+    *   an Avro Schema in String format.
     */
   def updateSchema(topicName: String, schemaString: String): Unit = {
     var schema: Schema = null
@@ -176,7 +178,8 @@ class Parser extends OptionParser[Config]("kafkaquery") {
 
   /** Prints the Avro schema associated with the topic
     *
-    * @param topicName name of the topic in zookeeper
+    * @param topicName
+    *   name of the topic in zookeeper
     */
   def printAvroSchema(topicName: String): Unit = {
     val schema = zookeeperExposer.get(topicName)
@@ -189,7 +192,8 @@ class Parser extends OptionParser[Config]("kafkaquery") {
 
   /** Prints the simple Avro schema associated with the topic
     *
-    * @param topicName name of the topic in zookeeper
+    * @param topicName
+    *   name of the topic in zookeeper
     */
   def printSimpleAvroSchema(topicName: String): Unit = {
     val schema = zookeeperExposer.get(topicName)
@@ -202,7 +206,8 @@ class Parser extends OptionParser[Config]("kafkaquery") {
 
   /** Initialises the ZookeeperSchemaExposer.
     *
-    * @return success of the initialisation
+    * @return
+    *   success of the initialisation
     */
   private def initZookeeperExposer(zookeeperAddress: String): Unit = {
     try {
@@ -222,8 +227,10 @@ class Parser extends OptionParser[Config]("kafkaquery") {
 
   /** Executes the steps required for infering a schema.
     *
-    * @param topicName    name of the topic to be inferred
-    * @param kafkaAddress address of the kafka instance where the topic is present
+    * @param topicName
+    *   name of the topic to be inferred
+    * @param kafkaAddress
+    *   address of the kafka instance where the topic is present
     */
   def inferSchema(topicName: String, kafkaAddress: String): Unit = {
     val schema = JsonToAvroSchema.inferSchema(

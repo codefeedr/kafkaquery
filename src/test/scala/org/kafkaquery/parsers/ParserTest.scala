@@ -14,7 +14,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   private val subjectName = "testSubject"
   private val subjectSchema = new Schema.Parser()
-    .parse("""{"type":"record","name":"testCC","fields":[{"name":"s","type":"string"}]}""")
+    .parse(
+      """{"type":"record","name":"testCC","fields":[{"name":"s","type":"string"}]}"""
+    )
   private var parser: Parser = _
   private var outStream: ByteArrayOutputStream = _
 
@@ -53,7 +55,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("parseNothing") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
       assertThrows[RuntimeException] {
         parser.parse(null)
       }
@@ -62,7 +66,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("parseDefinedPlusParseEmpty") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
       parser.getSchemaExposer.put(subjectSchema, subjectName)
 
       parser.parse(Array("-t", subjectName))
@@ -72,7 +78,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("printAllTopics") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
       parser.getSchemaExposer.put(subjectSchema, subjectName)
 
       //check whether the TopicParser prints the same output after more than 1 call.
@@ -88,7 +96,12 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
   test("setKafkaAddress") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       val kafkaAddress = "someAddress"
-        val parserConfig = parser.parseConfig(("--kafka " + kafkaAddress + " --zookeeper \"notworkingAddress\"").split(" ")).get
+      val parserConfig = parser
+        .parseConfig(
+          ("--kafka " + kafkaAddress + " --zookeeper \"notworkingAddress\"")
+            .split(" ")
+        )
+        .get
       assert(parserConfig.kafkaAddress == kafkaAddress)
     }
   }
@@ -96,23 +109,28 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
   test("setZooKeeperAddress") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
       val ZKAddress = "someOTherAddress"
-      val parserConfig = parser.parseConfig(("--zookeeper "+ ZKAddress).split(" ")).get
+      val parserConfig =
+        parser.parseConfig(("--zookeeper " + ZKAddress).split(" ")).get
       assert(parserConfig.zookeeperAddress == ZKAddress)
     }
   }
 
-
   test("updateSchemaFromFile") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-
       val fileName = "schema"
       val zkAddress = s"localhost:${config.zooKeeperPort}"
-      val avroSchema = """{"type":"record","name":"Person","namespace":"org.codefeedr.plugins.repl.org.kafkaquery.parsers.Parser.updateSchema","fields":[{"name":"name","type":"string"},{"name":"age","type":"int"},{"name":"city","type":"string"}]}"""
-      new PrintWriter(fileName) {write(avroSchema); close()}
+      val avroSchema =
+        """{"type":"record","name":"Person","namespace":"org.codefeedr.plugins.repl.org.kafkaquery.parsers.Parser.updateSchema","fields":[{"name":"name","type":"string"},{"name":"age","type":"int"},{"name":"city","type":"string"}]}"""
+      new PrintWriter(fileName) { write(avroSchema); close() }
 
-      parser.parse(("--update-schema "+ subjectName +"=" + fileName+ " --zookeeper "+zkAddress).split(" "))
+      parser.parse(
+        ("--update-schema " + subjectName + "=" + fileName + " --zookeeper " + zkAddress)
+          .split(" ")
+      )
 
-      assert(parser.getSchemaExposer.get(subjectName).get.toString.equals(avroSchema))
+      assert(
+        parser.getSchemaExposer.get(subjectName).get.toString.equals(avroSchema)
+      )
 
       FileUtils.deleteQuietly(new File(fileName))
     }
@@ -120,7 +138,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("updateSchemaParserFailure") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
       val avroSchema = """incorrect Avro Format"""
       Console.withErr(outStream) {
         parser.updateSchema(subjectName, avroSchema)
@@ -133,7 +153,8 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("checkConfigQuery") {
     val args: Seq[String] = Seq(
-      "-q", "select * from topic"
+      "-q",
+      "select * from topic"
     )
 
     val parsed = parser.parseConfig(args)
@@ -150,7 +171,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
     val topic = "World"
 
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
       parser.getSchemaExposer.put(npmTableSchema, topic)
 
       Console.withOut(outStream) {
@@ -166,7 +189,9 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
 
   test("testFailToPrintEmptyTopicSchema") {
     withRunningKafkaOnFoundPort(config) { implicit config =>
-      parser.setSchemaExposer(new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}"))
+      parser.setSchemaExposer(
+        new ZookeeperSchemaExposer(s"localhost:${config.zooKeeperPort}")
+      )
 
       Console.withErr(outStream) {
 
