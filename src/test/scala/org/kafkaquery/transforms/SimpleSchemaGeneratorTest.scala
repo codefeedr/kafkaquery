@@ -227,7 +227,11 @@ class SimpleSchemaGeneratorTest
                                 |    }
                                 |  } ]
                                 |}""".stripMargin)
-      assert(SimpleSchemaGenerator.getSimpleSchema(schema).equals("""PyPiReleaseExt : RECORD
+    assert(
+      SimpleSchemaGenerator
+        .getSimpleSchema(schema)
+        .equals(
+          """PyPiReleaseExt : RECORD
                                                                     |     title : STRING
                                                                     |     link : STRING
                                                                     |     description : STRING
@@ -266,6 +270,9 @@ class SimpleSchemaGeneratorTest
                                                                     |          last_serial : LONG
                                                                     |          releases : ARRAY<RECORD>
                                                                     |          urls : ARRAY<RECORD>
-                                                                    |""".stripMargin.replace("\r\n", "\n")))
+                                                                    |""".stripMargin
+            .replace("\r\n", "\n")
+        )
+    )
   }
 }
