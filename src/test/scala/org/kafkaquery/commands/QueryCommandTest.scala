@@ -3,7 +3,7 @@ package org.kafkaquery.commands
 import java.io.{File, PrintWriter}
 import java.util
 import java.util.Collections
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import io.github.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction

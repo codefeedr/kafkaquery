@@ -7,9 +7,12 @@ import org.apache.flink.util.Collector
 
 import java.util.{Timer, TimerTask}
 
-/** Function which throws an alert flag after a specified amount of time without having received new records has passed.
-  * @param timeOut delay after which an alert flag is thrown (in ms)
-  * @param func function to be executed on timer trigger
+/** Function which throws an alert flag after a specified amount of time without
+  * having received new records has passed.
+  * @param timeOut
+  *   delay after which an alert flag is thrown (in ms)
+  * @param func
+  *   function to be executed on timer trigger
   */
 class TimeOutFunction( // delay after which an alert flag is thrown
     val timeOut: Int,
