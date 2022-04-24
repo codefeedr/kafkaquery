@@ -1,6 +1,6 @@
 package org.kafkaquery.util
 
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import io.github.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatest.funsuite.AnyFunSuite
 

@@ -2,7 +2,7 @@ package org.kafkaquery.parsers
 
 import java.io.{ByteArrayOutputStream, File, PrintWriter}
 
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import io.github.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.avro.Schema
 import org.apache.commons.io.FileUtils
 import org.kafkaquery.parsers.Configurations.Mode
@@ -80,8 +80,8 @@ class ParserTest extends AnyFunSuite with EmbeddedKafka with BeforeAndAfter {
       val res = new String(outStream.toByteArray)
       val otherOutStream = new java.io.ByteArrayOutputStream
       Console.withOut(otherOutStream)(parser.printTopics())
-      val res2 = new String(outStream.toByteArray)
-      assert(res.equals(res2))
+      val res_ = new String(outStream.toByteArray)
+      assert(res.equals(res_))
     }
   }
 

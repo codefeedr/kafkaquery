@@ -8,11 +8,13 @@ import org.apache.kafka.common.TopicPartition
 
 import scala.collection.JavaConverters._
 
-/** *
-  * Retrieves records from a specified Kafka topic in reverse order.
-  * @param topicName name of the topic to retrieve records from
-  * @param kafkaAddress address of Kafka instance to connect to
-  * @param maxRecords max amount of Records to look back upon
+/** * Retrieves records from a specified Kafka topic in reverse order.
+  * @param topicName
+  *   name of the topic to retrieve records from
+  * @param kafkaAddress
+  *   address of Kafka instance to connect to
+  * @param maxRecords
+  *   max amount of Records to look back upon
   */
 class KafkaRecordRetriever(
     topicName: String,
@@ -36,7 +38,7 @@ class KafkaRecordRetriever(
   props.put(
     "default.api.timeout.ms",
     "5000"
-  ) //Todo create option for setting this value
+  ) // TODO create option for setting this value
 
   private val kafkaConsumer = new KafkaConsumer[String, String](props)
 
@@ -53,8 +55,9 @@ class KafkaRecordRetriever(
     kafkaConsumer.beginningOffsets(partitions).asScala
 
   /** Retrieves the next record from the inverse order.
-    * @return the next record that has not been retrieved yet,
-    *         provided the max amount of records has not been reached and more records are available.
+    * @return
+    *   the next record that has not been retrieved yet, provided the max amount
+    *   of records has not been reached and more records are available
     */
   def getNextRecord: Option[String] = {
 

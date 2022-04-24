@@ -1,7 +1,7 @@
 package org.kafkaquery.transforms
 
-import net.manub.embeddedkafka.Codecs.stringDeserializer
-import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import io.github.embeddedkafka.Codecs.stringDeserializer
+import io.github.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTypeInformation}
 import org.apache.flink.test.util.MiniClusterWithClientResource
