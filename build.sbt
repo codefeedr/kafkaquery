@@ -20,6 +20,7 @@ lazy val log4jVersion       = "2.14.1"
 lazy val scalatestVersion   = "3.2.11"
 
 libraryDependencies ++= Seq(
+  // scala-steward:off
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
   "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime,
   "org.apache.logging.log4j"  %% "log4j-api-scala"                % "12.0",
