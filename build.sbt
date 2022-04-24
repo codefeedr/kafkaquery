@@ -17,7 +17,7 @@ packExtraClasspath := Map(name.value -> Seq("${PROG_HOME}/udf_dependencies/*"))
 lazy val flinkVersion       = "1.12.7"
 lazy val kafkaVersion       = "2.8.1"
 lazy val log4jVersion       = "2.14.1"
-lazy val scalatestVersion   = "3.2.10"
+lazy val scalatestVersion   = "3.2.11"
 
 libraryDependencies ++= Seq(
   "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion,
