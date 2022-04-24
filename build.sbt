@@ -15,8 +15,8 @@ packMain := Map(name.value -> "org.kafkaquery.CLI")
 packExtraClasspath := Map(name.value -> Seq("${PROG_HOME}/udf_dependencies/*"))
 
 lazy val flinkVersion       = "1.12.7"
-lazy val kafkaVersion       = "2.8.1"
-lazy val log4jVersion       = "2.14.1"
+lazy val kafkaVersion       = "3.1.0"
+lazy val log4jVersion       = "2.17.2"
 lazy val scalatestVersion   = "3.2.11"
 
 libraryDependencies ++= Seq(
@@ -32,16 +32,16 @@ libraryDependencies ++= Seq(
   "org.apache.flink"           % "flink-core"                     % flinkVersion      classifier "tests",
 
   "org.apache.zookeeper"       % "zookeeper"                      % "3.7.0",
-  "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.31"          % Test,
+  "io.dropwizard.metrics"      % "metrics-core"                   % "4.2.9"           % Test,
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
   "org.scalatest"             %% "scalatest"                      % scalatestVersion  % Test,
-  "org.mockito"               %% "mockito-scala"                  % "1.16.55"         % Test,
+  "org.mockito"               %% "mockito-scala"                  % "1.17.5"          % Test,
 
   "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
 
-  "org.apache.avro"            % "avro"                           % "1.10.2",
+  "org.apache.avro"            % "avro"                           % "1.11.0",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
