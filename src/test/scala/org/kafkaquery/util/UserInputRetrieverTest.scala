@@ -3,8 +3,6 @@ package org.kafkaquery.util
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.io.StdIn
-
 class UserInputRetrieverTest extends AnyFunSuite with MockitoSugar {
 
 

@@ -8,9 +8,12 @@ object SchemaConverter {
 
   /** Getter for the nested Avro schema.
     *
-    * @param name name of the schema
-    * @param schema schema of current level
-    * @return schema name with the corresponding Flink type name as a tuple
+    * @param name
+    *   name of the schema
+    * @param schema
+    *   schema of current level
+    * @return
+    *   schema name with the corresponding Flink type name as a tuple
     */
   def getNestedSchema(
       name: String,

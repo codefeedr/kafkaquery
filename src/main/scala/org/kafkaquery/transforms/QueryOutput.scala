@@ -32,7 +32,8 @@ object QueryOutput {
 
   /** Print data stream of query results to console.
     *
-    * @param ds datastream of query output
+    * @param ds
+    *   datastream of query output
     */
   private def queryToConsole(ds: DataStream[Row]): Unit = {
     ds.addSink(new SimplePrintSinkFunction[Row]())
@@ -40,9 +41,12 @@ object QueryOutput {
 
   /** Write query results to socket of given port.
     *
-    * @param port socket port number (0 - random)
-    * @param ds   data stream of query output which should be written to socket.
-    * @return output port
+    * @param port
+    *   socket port number (0 - random)
+    * @param ds
+    *   data stream of query output which should be written to socket
+    * @return
+    *   output port
     */
   private def queryToSocket(port: Int, ds: DataStream[Row]): Unit = {
     ds.addSink(new SocketSink[Row](port))
@@ -50,8 +54,10 @@ object QueryOutput {
 
   /** Write query results to given Kafka topic.
     *
-    * @param outTopic topic name to write results to
-    * @param ds       data stream of query output
+    * @param outTopic
+    *   topic name to write results to
+    * @param ds
+    *   data stream of query output
     */
   private def queryToKafkaTopic(
       outTopic: String,

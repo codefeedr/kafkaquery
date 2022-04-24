@@ -6,7 +6,8 @@ object CLI {
 
   /** Main method which looks up which arguments to parse.
     *
-    * @param args command line arguments
+    * @param args
+    *   command line arguments
     */
   def main(args: Array[String]): Unit = {
 
