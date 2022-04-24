@@ -16,7 +16,7 @@ packExtraClasspath := Map(name.value -> Seq("${PROG_HOME}/udf_dependencies/*"))
 
 lazy val flinkVersion       = "1.12.2"
 lazy val kafkaVersion       = "2.8.1"
-lazy val log4jVersion       = "2.14.0"
+lazy val log4jVersion       = "2.14.1"
 lazy val scalatestVersion   = "3.2.5"
 
 libraryDependencies ++= Seq(
@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-clients"                  % flinkVersion,
   "org.apache.flink"           % "flink-core"                     % flinkVersion      classifier "tests",
 
-  "org.apache.zookeeper"       % "zookeeper"                      % "3.6.2",
+  "org.apache.zookeeper"       % "zookeeper"                      % "3.7.0",
   "io.dropwizard.metrics"      % "metrics-core"                   % "4.1.18"          % Test,
 
   "org.scalactic"             %% "scalactic"                      % scalatestVersion  % Test,
@@ -40,7 +40,7 @@ libraryDependencies ++= Seq(
   "org.apache.kafka"           % "kafka-clients"                  % kafkaVersion,
   "io.github.embeddedkafka"   %% "embedded-kafka"                 % kafkaVersion      % Test,
 
-  "org.apache.avro"            % "avro"                           % "1.10.1",
+  "org.apache.avro"            % "avro"                           % "1.10.2",
 
   "org.apache.flink"          %% "flink-table-api-scala-bridge"   % flinkVersion,
   "org.apache.flink"          %% "flink-table-planner-blink"      % flinkVersion,
@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
   "org.apache.flink"          %% "flink-runtime"                  % flinkVersion      % Test classifier "tests",
   "org.apache.flink"          %% "flink-streaming-java"           % flinkVersion      % Test classifier "tests",
 
-  "com.github.scopt"          %% "scopt"                          % "4.0.0",
+  "com.github.scopt"          %% "scopt"                          % "4.0.1",
   "com.sksamuel.avro4s"       %% "avro4s-core"                    % "4.0.4"           % Test,
 )
 
