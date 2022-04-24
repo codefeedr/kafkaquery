@@ -1,6 +1,6 @@
 name := "kafkaquery"
 
-scalaVersion := "2.12.12"
+scalaVersion := "2.12.15"
 
 scalacOptions ++= Seq(
   "-deprecation",
