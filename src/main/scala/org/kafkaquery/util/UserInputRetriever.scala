@@ -8,8 +8,10 @@ object UserInputRetriever {
   var reader: InputReadWrapper = new InputReadWrapper
 
   /** Retrieves a character from the reader.
-    * @param allowedChars characters that are accepted answers
-    * @return the retrieved character
+    * @param allowedChars
+    *   characters that are accepted answers
+    * @return
+    *   the retrieved character
     */
   @tailrec
   def readAllowedChar(allowedChars: List[Char]): Char = {
@@ -22,7 +24,8 @@ object UserInputRetriever {
     readAllowedChar(allowedChars)
   }
 
-  /** Wrapping Standard input for testing, with Mockito 2 it will be possible to mock final classes.
+  /** Wrapping Standard input for testing, with Mockito 2 it will be possible to
+    * mock final classes.
     */
   class InputReadWrapper {
     var inputStream: StdIn.type = StdIn

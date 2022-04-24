@@ -40,7 +40,7 @@ class QueryCommand(
   private val functionClassLoader = classLoaderBuilder.build()
   TemporaryClassLoaderContext.of(functionClassLoader)
 
-  //Mark every temporary udf for deletion
+  // Mark every temporary udf for deletion
   private val rootList = root.list()
   if (rootList != null) {
     root
