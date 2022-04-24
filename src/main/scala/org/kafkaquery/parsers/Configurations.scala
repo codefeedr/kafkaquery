@@ -9,11 +9,18 @@ object Configurations {
 
   /** Config which contains all the copied the arguments from the CLI
     *
-    * @param mode        an enum of the command being used
-    * @param queryConfig query config containing the arguments related to the query
-    * @param topicName   topic name
-    * @param kafkaAddress the Kafka address (default localhost:9092 or environment variable KAFKA_ADDR if present)
-    * @param zookeeperAddress the ZooKeeper address (default localhost:2181 or environment variable ZK_ADDR if present)
+    * @param mode
+    *   an enum of the command being used
+    * @param queryConfig
+    *   query config containing the arguments related to the query
+    * @param topicName
+    *   topic name
+    * @param kafkaAddress
+    *   the Kafka address (default localhost:9092 or environment variable
+    *   KAFKA_ADDR if present)
+    * @param zookeeperAddress
+    *   the ZooKeeper address (default localhost:2181 or environment variable
+    *   ZK_ADDR if present)
     */
   case class Config(
       mode: Mode = null,
@@ -32,13 +39,22 @@ object Configurations {
   }
 
   /** Query config which contains copied arguments from the CLI
-    * @param query query string
-    * @param output output channel for query results
-    * @param startStrategy define start point for fetching elements from Kafka (e.g. from latest/earliest)
-    * @param timeout timeout before query prints results
-    * @param timeoutFunc function to be executed when timeout is triggered
-    * @param ignoreParseErr ignore JSON parse errors during deserialization
-    * @param userFunctions list containing tuples with the names and files containing the user defined functions
+    * @param query
+    *   query string
+    * @param output
+    *   output channel for query results
+    * @param startStrategy
+    *   define start point for fetching elements from Kafka (e.g. from
+    *   latest/earliest)
+    * @param timeout
+    *   timeout before query prints results
+    * @param timeoutFunc
+    *   function to be executed when timeout is triggered
+    * @param ignoreParseErr
+    *   ignore JSON parse errors during deserialization
+    * @param userFunctions
+    *   list containing tuples with the names and files containing the user
+    *   defined functions
     */
   case class QueryConfig(
       query: String = "",

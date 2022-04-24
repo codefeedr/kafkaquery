@@ -8,12 +8,13 @@ import org.apache.zookeeper._
 
 import scala.collection.JavaConverters._
 
-/** Exposes (Avro) schema's to ZooKeeper.
+/** Exposes (Avro) schemas to ZooKeeper.
   *
-  * @param host the server host of ZooKeeper.
-  * @param root the root node of the schema's
-  *             NOTE: Must start with / and only contain one '/'
-  *             DEFAULT: /codefeedr:schemas
+  * @param host
+  *   the server host of ZooKeeper
+  * @param root
+  *   the root node of the schemas; must start with '/' and only contain one
+  *   '/'; default is '/codefeedr:schemas'
   */
 class ZookeeperSchemaExposer(
     host: String,
@@ -40,11 +41,11 @@ class ZookeeperSchemaExposer(
 
     connectionLatch.await()
 
-    //if parent doesn't exist create it
+    // if parent doesn't exist create it
     val exists = client.exists(root, false)
 
     if (exists == null) {
-      //create parent node
+      // create parent node
       client.create(
         root,
         Array(),
@@ -58,21 +59,24 @@ class ZookeeperSchemaExposer(
 
   /** Stores a schema bound to a subject.
     *
-    * @param schema  The schema belonging to that topic.
-    * @param subject The subject belonging to that schema.
-    * @return True if correctly saved.
+    * @param schema
+    *   The schema belonging to that topic
+    * @param subject
+    *   The subject belonging to that schema
+    * @return
+    *   True if correctly saved
     */
   def put(schema: Schema, subject: String): Boolean = {
     val path = s"$root/$subject"
 
-    //check if already exist, if so update data
+    // check if already exist, if so update data
     val exists = client.exists(path, false)
     if (exists != null) {
       client.setData(path, schema.toString(true).getBytes(), -1)
       return true
     }
 
-    //create new node and set if it doesn't exist
+    // create new node and set if it doesn't exist
     val createdPath = client.create(
       path,
       schema.toString(true).getBytes,
@@ -85,32 +89,37 @@ class ZookeeperSchemaExposer(
 
   /** Get a schema based on a subject.
     *
-    * @param subject The subject the schema belongs to.
-    * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
+    * @param subject
+    *   The subject the schema belongs to
+    * @return
+    *   None if no schema is found or an invalid schema; otherwise, it returns
+    *   the schema
     */
   def get(subject: String): Option[Schema] = {
     try {
-      //get the data from ZK
+      // get the data from ZK
       val data = client.getData(s"$root/$subject", null, null)
 
-      //parse the schema and return
+      // parse the schema and return
       parse(new String(data))
     } catch {
-      case _: Throwable => None //if path is not found
+      case _: Throwable => None // if path is not found
     }
   }
 
-  /** Deletes a Schema.
+  /** Deletes a schema.
     *
-    * @param subject The subject the schema belongs to.
-    * @return True if successfully deleted, otherwise false.
+    * @param subject
+    *   The subject the schema belongs to
+    * @return
+    *   True if successfully deleted, otherwise false
     */
   def delete(subject: String): Boolean = {
     try {
       client.delete(s"$root/$subject", -1)
     } catch {
       case _: Throwable =>
-        return false //if path doesn't exist or there is no data
+        return false // if path doesn't exist or there is no data
     }
 
     true
@@ -120,39 +129,42 @@ class ZookeeperSchemaExposer(
   def deleteAll(): Unit = {
     val exists = client.exists(s"$root", false)
 
-    //if not exists then return
+    // if not exists then return
     if (exists == null) return
 
-    //get all children
+    // get all children
     val children = client.getChildren(s"$root", false)
 
-    //delete children
+    // delete children
     children.asScala
       .foreach(x => client.delete(s"$root/$x", -1))
 
-    //delete root afterwards
+    // delete root afterwards
     client.delete(s"$root", -1)
   }
 
-  /** Getter for all children in zookeeper path.
-    * @return list of all children in zookeeper path
+  /** Getter for all children in ZooKeeper path.
+    * @return
+    *   list of all children in ZooKeeper path
     */
   def getAllChildren: List[String] = {
     val exists = client.exists(s"$root", false)
 
-    //if not exists then return
+    // if not exists then return
     if (exists == null) return null
 
-    //get all children
+    // get all children
     val children = client.getChildren(s"$root", false)
 
     children.asScala.toList
   }
 
-  /** Tries to parse a String into a Schema.
+  /** Tries to parse a String into a schema.
     *
-    * @param schemaString The schema string.
-    * @return An option of a Schema.
+    * @param schemaString
+    *   The schema string
+    * @return
+    *   An option of a schema
     */
   def parse(schemaString: String): Option[Schema] = {
     try {
