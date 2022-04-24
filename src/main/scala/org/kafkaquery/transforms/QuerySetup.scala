@@ -7,11 +7,15 @@ import scala.collection.JavaConverters._
 
 object QuerySetup {
 
-  /** Extract the table names from the query and return the ones that are supported.
+  /** Extract the table names from the query and return the ones that are
+    * supported.
     *
-    * @param query            sql query to be matched
-    * @param supportedPlugins list of supported plugins from zookeeper
-    * @return the subset of supported plugins
+    * @param query
+    *   sql query to be matched
+    * @param supportedPlugins
+    *   list of supported plugins from zookeeper
+    * @return
+    *   the subset of supported plugins
     */
   def extractTopics(
       query: String,
@@ -21,12 +25,18 @@ object QuerySetup {
   }
 
   /** Returns the Flink DDL for creating the specified temporary table.
-    * @param name name of the table/Kafka topic
-    * @param tableFields DDL StringBuilder of the table fields
-    * @param kafkaAddr Kafka server address
-    * @param startStrategy strategy for fetching records
-    * @param ignoreParseErr JSON ignore parse errors property
-    * @return temporary table DDL string
+    * @param name
+    *   name of the table/Kafka topic
+    * @param tableFields
+    *   DDL StringBuilder of the table fields
+    * @param kafkaAddr
+    *   Kafka server address
+    * @param startStrategy
+    *   strategy for fetching records
+    * @param ignoreParseErr
+    *   JSON ignore parse errors property
+    * @return
+    *   temporary table DDL string
     */
   def getTableCreationCommand(
       name: String,
@@ -54,8 +64,10 @@ object QuerySetup {
 
   /** Generate a Flink table schema from an Avro Schema.
     *
-    * @param avroSchema  the Avro Schema
-    * @return a java.lang.StringBuilder with the DDL description of the schema
+    * @param avroSchema
+    *   the Avro Schema
+    * @return
+    *   a java.lang.StringBuilder with the DDL description of the schema
     */
   def generateTableSchema(
       avroSchema: org.apache.avro.Schema,

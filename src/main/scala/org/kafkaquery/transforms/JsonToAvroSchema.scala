@@ -12,9 +12,12 @@ import scala.collection.mutable.ListBuffer
 object JsonToAvroSchema {
 
   /** Infers an Avro schema from a given JSON object.
-    * @param topicName name of the Kafka data source
-    * @param recordRetriever retriever of Kafka records in inverse order of addition
-    * @return inferred Avro Schema
+    * @param topicName
+    *   name of the Kafka data source
+    * @param recordRetriever
+    *   retriever of Kafka records in inverse order of addition
+    * @return
+    *   inferred Avro Schema
     */
   def inferSchema(
       topicName: String,
@@ -198,9 +201,12 @@ object JsonToAvroSchema {
     )
   }
 
-  /** Modified name to ensure it adheres to Avro requirements by replacing illegal characters with '_'.
-    * @param name original name of the field
-    * @return valid name accepted by Avro
+  /** Modified name to ensure it adheres to Avro requirements by replacing
+    * illegal characters with '_'.
+    * @param name
+    *   original name of the field
+    * @return
+    *   valid name accepted by Avro
     */
   private def validName(name: String): String = {
     val tempName = name.replaceAll("\\W", "_")
