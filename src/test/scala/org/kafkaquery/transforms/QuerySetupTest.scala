@@ -2,22 +2,31 @@ package org.kafkaquery.transforms
 
 import java.lang
 import org.apache.avro.Schema
-import org.kafkaquery.parsers.Configurations.{EarliestQueryStart, LatestQueryStart, QueryStart}
+import org.kafkaquery.parsers.Configurations.{
+  EarliestQueryStart,
+  LatestQueryStart,
+  QueryStart
+}
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
 
-class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPropertyChecks {
+class QuerySetupTest
+    extends AnyFunSuite
+    with BeforeAndAfter
+    with TableDrivenPropertyChecks {
 
   test("Topics should correctly be extracted from query") {
-    val res = QuerySetup.extractTopics("SELECT * from t1, t2, t3", List("t2", "t3", "t4"))
+    val res = QuerySetup.extractTopics(
+      "SELECT * from t1, t2, t3",
+      List("t2", "t3", "t4")
+    )
     assert(res == List("t2", "t3"))
   }
 
   val testDataGetTableCreationCommand: TableFor1[QueryStart] =
     Table(
       "startStrategy",
-
       EarliestQueryStart(),
       LatestQueryStart()
     )
@@ -34,15 +43,19 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
         "'json.timestamp-format.standard' = 'ISO-8601', 'json.ignore-parse-errors' = 'true', " +
         "'json.fail-on-missing-field' = 'false')"
     )(
-      QuerySetup.getTableCreationCommand(tableName, new java.lang.StringBuilder(tableFields), kafkaAddr,
-        startStrategy = startStrategy, ignoreParseErr = true)
+      QuerySetup.getTableCreationCommand(
+        tableName,
+        new java.lang.StringBuilder(tableFields),
+        kafkaAddr,
+        startStrategy = startStrategy,
+        ignoreParseErr = true
+      )
     )
   }
 
   val testDataGenerateTableSchema: TableFor2[String, String] =
     Table(
       ("schemaStr", "tableDesc"),
-
       (
         """
           |{
@@ -85,13 +98,18 @@ class QuerySetupTest extends AnyFunSuite with BeforeAndAfter with TableDrivenPro
         "field field type, field TIMESTAMP(3), WATERMARK FOR field AS field - INTERVAL '0.001' SECOND"
       )
     )
-  forAll(testDataGenerateTableSchema) { (schemaStr: String, tableDesc: String) =>
-    assertResult(
-      tableDesc
-    )(
-      QuerySetup.generateTableSchema(new Schema.Parser().parse(schemaStr),
-        (_, _) => ("field", new lang.StringBuilder("field type"))).toString
-    )
+  forAll(testDataGenerateTableSchema) {
+    (schemaStr: String, tableDesc: String) =>
+      assertResult(
+        tableDesc
+      )(
+        QuerySetup
+          .generateTableSchema(
+            new Schema.Parser().parse(schemaStr),
+            (_, _) => ("field", new lang.StringBuilder("field type"))
+          )
+          .toString
+      )
   }
 
 }
