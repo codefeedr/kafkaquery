@@ -15,17 +15,20 @@ import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funsuite.AnyFunSuite
 
-class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafka with MockitoSugar {
+class QueryCommandTest
+    extends AnyFunSuite
+    with BeforeAndAfter
+    with EmbeddedKafka
+    with MockitoSugar {
 
-  test ("Query should run and produce expected results") {
+  test("Query should run and produce expected results") {
     CollectRowSink.values.clear()
 
     val tableName = "t1"
 
     val zkExposerMock = mock[ZookeeperSchemaExposer]
     doReturn(List("t1", "t2")).when(zkExposerMock).getAllChildren
-    val t1Schema = new Schema.Parser().parse(
-      """
+    val t1Schema = new Schema.Parser().parse("""
         |{ "type": "record", "name": "t1", "fields": [ { "name": "f1", "type": "string" },
         |{ "name": "f2", "type": "int" } ], "rowtime": "false" }
         |""".stripMargin)
@@ -42,7 +45,13 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
       publishStringMessageToKafka(tableName, "error")
 
       val qc = new QueryCommand(
-        QueryConfig(timeout = 4, query = "select f1 from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => ()),
+        QueryConfig(
+          timeout = 4,
+          query = "select f1 from t1",
+          startStrategy = EarliestQueryStart(),
+          ignoreParseErr = false,
+          timeoutFunc = () => ()
+        ),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
@@ -54,20 +63,21 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
         case _: JobExecutionException =>
       }
 
-      assertResult(util.Arrays.asList(Row.of("val1"), Row.of("val2")))(CollectRowSink.values)
+      assertResult(util.Arrays.asList(Row.of("val1"), Row.of("val2")))(
+        CollectRowSink.values
+      )
     }
 
   }
 
-  test ("usage of a User-defined function") {
+  test("usage of a User-defined function") {
     CollectRowSink.values.clear()
 
     val tableName = "t1"
 
     val zkExposerMock = mock[ZookeeperSchemaExposer]
     doReturn(List("t1", "t2")).when(zkExposerMock).getAllChildren
-    val t1Schema = new Schema.Parser().parse(
-      """
+    val t1Schema = new Schema.Parser().parse("""
         |{ "type": "record", "name": "t1", "fields": [ { "name": "f1", "type": "string" },
         |{ "name": "f2", "type": "int" } ], "rowtime": "false" }
         |""".stripMargin)
@@ -85,19 +95,27 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
 
       val udfName = "MyUDF.java"
 
-      new PrintWriter(udfName) {write(
-        """import org.apache.flink.table.functions.ScalarFunction;
+      new PrintWriter(udfName) {
+        write("""import org.apache.flink.table.functions.ScalarFunction;
           |
           |public class MyUDF extends ScalarFunction {
           |    public String eval(String input) {
           |        return input + " : udf invoked";
           |    }
-          |}""".stripMargin); close()}
+          |}""".stripMargin); close()
+      }
 
       val udfFile = new File(udfName)
       udfFile.deleteOnExit()
       val qc = new QueryCommand(
-        QueryConfig(timeout = 4, query = "select MyUDF(f1) from t1", startStrategy = EarliestQueryStart(), ignoreParseErr = false, timeoutFunc = () => (), userFunctions = new Parser().getClassNameList(List(udfFile))),
+        QueryConfig(
+          timeout = 4,
+          query = "select MyUDF(f1) from t1",
+          startStrategy = EarliestQueryStart(),
+          ignoreParseErr = false,
+          timeoutFunc = () => (),
+          userFunctions = new Parser().getClassNameList(List(udfFile))
+        ),
         zkExposerMock,
         s"localhost:${config.kafkaPort}"
       )
@@ -109,7 +127,10 @@ class QueryCommandTest extends AnyFunSuite with BeforeAndAfter with EmbeddedKafk
         case _: JobExecutionException =>
       }
 
-      assertResult(util.Arrays.asList(Row.of("val1 : udf invoked"), Row.of("val2 : udf invoked")))(CollectRowSink.values)
+      assertResult(
+        util.Arrays
+          .asList(Row.of("val1 : udf invoked"), Row.of("val2 : udf invoked"))
+      )(CollectRowSink.values)
     }
 
   }
@@ -123,5 +144,6 @@ class CollectRowSink extends SinkFunction[Row] {
 }
 
 object CollectRowSink {
-  val values: util.List[Row] = Collections.synchronizedList(new util.ArrayList())
+  val values: util.List[Row] =
+    Collections.synchronizedList(new util.ArrayList())
 }
