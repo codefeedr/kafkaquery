@@ -1,3 +1,4 @@
+// scala-steward:off
 name := "kafkaquery"
 
 scalaVersion := "2.12.15"
