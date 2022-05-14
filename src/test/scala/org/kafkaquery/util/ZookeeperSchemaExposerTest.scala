@@ -23,7 +23,8 @@ import org.apache.avro.Schema
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 
-class ZookeeperSchemaExposerTest extends AnyFunSuite
+class ZookeeperSchemaExposerTest
+    extends AnyFunSuite
     with BeforeAndAfter
     with BeforeAndAfterAll
     with EmbeddedKafka {
@@ -66,7 +67,8 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   val host = "localhost:2181"
 
   override def beforeAll(): Unit = {
-    implicit val config: EmbeddedKafkaConfig = EmbeddedKafkaConfig(zooKeeperPort = 2181)
+    implicit val config: EmbeddedKafkaConfig =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181)
     EmbeddedKafka.start()
   }
 
@@ -91,42 +93,42 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   }
 
   test("A simple schema should be correctly saved") {
-    //put the schema
+    // put the schema
     exposer.put(parsedSchema, subject)
 
-    //if I get the schema, it should be the same
+    // if I get the schema, it should be the same
     assert(exposer.get(subject).get == parsedSchema)
     assert(exposer.get(subject).get != differentParsedSchema)
   }
 
   test("A simple schema should be correctly overwritten") {
-    //ensure schema's are not the same
+    // ensure schema's are not the same
     assert(differentParsedSchema != parsedSchema)
 
-    //put the schema
+    // put the schema
     exposer.put(parsedSchema, subject)
 
-    //if I get the schema, it should be the same
+    // if I get the schema, it should be the same
     assert(exposer.get(subject).get == parsedSchema)
 
-    //put the different schema
+    // put the different schema
     exposer.put(differentParsedSchema, subject)
 
-    //if I get the schema, it should not be the same as the original
+    // if I get the schema, it should not be the same as the original
     assert(exposer.get(subject).get != parsedSchema)
     assert(exposer.get(subject).get == differentParsedSchema)
   }
 
   test("A simple schema should be correctly deleted") {
-    //put the schema
+    // put the schema
     assert(exposer.put(parsedSchema, subject))
 
-    //it should be properly deleted
+    // it should be properly deleted
     assert(exposer.delete(subject))
   }
 
   test("A simple schema cannot be deleted if it is not there") {
-    //it should be properly deleted
+    // it should be properly deleted
     assert(!exposer.delete(subject))
   }
 
@@ -139,14 +141,14 @@ class ZookeeperSchemaExposerTest extends AnyFunSuite
   }
 
   test("All schema's should be properly deleted") {
-    //put the schema
+    // put the schema
     assert(exposer.put(parsedSchema, subject))
     exposer.deleteAll()
     assert(exposer.get(subject).isEmpty)
   }
 
   test("All schema's should be properly deleted even if called twice") {
-    //put the schema
+    // put the schema
     assert(exposer.put(parsedSchema, subject))
     exposer.deleteAll()
     exposer.deleteAll()
